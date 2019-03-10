@@ -89,7 +89,6 @@ class CookbookList extends StatelessWidget {
       MaterialPageRoute(builder: (context) => RecipeList(cookbook: cookbook)),
     );
   }
-
 }
 
 

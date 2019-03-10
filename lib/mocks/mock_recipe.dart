@@ -8,7 +8,7 @@ class MockRecipe extends Recipe {
   static final List<Recipe> meatRecipes = [
     Recipe(
       id: 0,
-      name: "Receta de Conejo al horno con patatas",
+      name: "Conejo al horno con patatas",
       coverUrl: "https://t2.rg.ltmcdn.com/es/images/9/8/1/img_conejo_al_horno_con_patatas_56189_600.jpg",
       level: Level.MEDIUM,
       steps: MockStep.FetchAll(),

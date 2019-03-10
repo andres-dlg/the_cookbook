@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/models/recipe.dart';
+import 'package:the_cookbook/pages/recipe_detail_page.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
 class RecipeList extends StatelessWidget {
@@ -27,7 +28,7 @@ class RecipeList extends StatelessWidget {
   Widget _renderRecipeCard(BuildContext context, Recipe recipe) {
     return Card(
       child: InkWell(
-        onTap: () => {},
+        onTap: () => { _navigateToRecipeDetail(context, recipe) },
         child: Row(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,6 +117,13 @@ class RecipeList extends StatelessWidget {
           ),
         )
       ],
+    );
+  }
+
+  _navigateToRecipeDetail(BuildContext context, Recipe recipe) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RecipeDetail(recipe: recipe)),
     );
   }
 
