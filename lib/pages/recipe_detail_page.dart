@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
+import 'package:the_cookbook/pages/recipe_steps_page.dart';
 import 'package:the_cookbook/utils/separator.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
@@ -26,7 +28,7 @@ class RecipeDetail extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.play_arrow),
         onPressed: () {
-
+          _navigateToRecipeSteps(context, recipe);
         },
       ),
     );
@@ -45,7 +47,9 @@ class RecipeDetail extends StatelessWidget {
           ),
           child: IconButton(
             icon: Icon(Icons.arrow_back,),
-            onPressed: () { Navigator.pop(context);},
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ),
       ),
@@ -210,6 +214,14 @@ class RecipeDetail extends StatelessWidget {
 
     return Column(children: ingredientsRows);
 
+  }
+
+  _navigateToRecipeSteps(BuildContext context, Recipe recipe) {
+    SystemChrome.setEnabledSystemUIOverlays([]);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RecipeStepsPage(recipe: recipe)),
+    );
   }
 
   Container _getGradient() {
