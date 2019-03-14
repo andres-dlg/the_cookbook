@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:the_cookbook/pages/cookbook_list_page.dart';
 import 'package:the_cookbook/pages/favourites_list_page.dart';
 import 'package:the_cookbook/mocks/mock_cookbook.dart';
@@ -174,12 +175,23 @@ class _MyDialogContentState extends State<MyDialogContent> {
 
   File _image;
 
-  Future getImage() async {
+  getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    _cropImage(image);
+  }
+
+  Future _cropImage(File imageFile) async {
+    File croppedFile = await ImageCropper.cropImage(
+      sourcePath: imageFile.path,
+      ratioX: 1.0,
+      ratioY: 1.0,
+      maxWidth: 512,
+      maxHeight: 512,
+    );
 
     setState(() {
-      _image = image;
-      print("IMAGEN: "+ _image.path);
+      _image = croppedFile;
+      print("Cropped file: "+ _image.path);
     });
   }
 
@@ -295,7 +307,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
             fontWeight: FontWeight.bold
         ),
         decoration: InputDecoration(
-          labelText: 'Enter cookbook name',
+          labelText: 'Cookbook name',
           labelStyle: TextStyle(
               color: Colors.white,
               fontFamily: 'Muli',
