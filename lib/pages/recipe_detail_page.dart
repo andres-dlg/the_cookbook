@@ -149,7 +149,7 @@ class RecipeDetail extends StatelessWidget {
               ),
               Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
               Text(
-                recipe.summary,
+                  recipe.summary,
                   style: TextStyle(
                       fontSize: 18.0,
                       fontFamily: 'Muli'
