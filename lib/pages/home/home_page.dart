@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:the_cookbook/pages/cookbook_list_page.dart';
-import 'package:the_cookbook/pages/favourites_list_page.dart';
-import 'package:the_cookbook/mocks/mock_cookbook.dart';
+import 'package:the_cookbook/database/database_helper.dart';
+import 'package:the_cookbook/models/cookbook.dart';
+import 'package:the_cookbook/pages/cookbook/cookbook_list_page.dart';
+import 'package:the_cookbook/pages/home/favourites_list_page.dart';
+import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Home extends StatefulWidget {
 
@@ -16,21 +20,33 @@ class Home extends StatefulWidget {
 
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> implements CookbookContract {
+
+  CookbookPresenter cookbookPresenter;
+
+  @override
+  void initState() {
+    super.initState();
+    cookbookPresenter = new CookbookPresenter(this);
+  }
 
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    CookbookList(MockCookbook.FetchAll()),
+  /*List<Widget> _children = [
+    //CookbookList(MockCookbook.FetchAll()),
+    CookbookList(cookbookPresenter),
     FavouritesList(Colors.deepOrange),
-  ];
+  ];*/
 
+  displayRecord() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     Future.delayed(Duration(milliseconds: 5000));
     return Scaffold(
       appBar: _renderAppBar(),
-      body: _children[_currentIndex],
+      body: _currentIndex == 0 ? CookbookList(cookbookPresenter) : FavouritesList(Colors.deepOrange),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.create),
@@ -44,15 +60,40 @@ class _HomeState extends State<Home> {
   }
 
   Widget _renderAppBar(){
-    return AppBar(
-      title: Center(
-        child: Text(
-          'THE COOKBOOK',
-          style: TextStyle(
-              fontFamily: 'Muli',
-              fontWeight: FontWeight.bold
+    final String title = "THE COOKBOOK";
+    final double barHeight = 50.0;
+    final double statusbarHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
+    return PreferredSize(
+      child: Container(
+        padding: new EdgeInsets.only(top: statusbarHeight),
+        height: statusbarHeight + barHeight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Center(
+              child: new Text(
+                title,
+                style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
+              ),
+            ),
+          ],
+        ),
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+              colors: [Colors.white, Colors.blueAccent],
+              begin: const FractionalOffset(0.0, 0.0),
+              end: const FractionalOffset(0.5, 0.0),
+              stops: [0.0, 1.0],
+              tileMode: TileMode.clamp
           ),
         ),
+      ),
+      preferredSize: new Size(
+        MediaQuery.of(context).size.width,
+        150.0
       ),
     );
 
@@ -138,7 +179,7 @@ class _HomeState extends State<Home> {
         return AlertDialog(
           contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
           //title: new Text("Alert Dialog title"),
-          content: new MyDialogContent(),//_renderDialogBody(),
+          content: new MyDialogContent(this),//_renderDialogBody(),
           /*actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
@@ -159,21 +200,33 @@ class _HomeState extends State<Home> {
     );
   }
 
+  @override
+  void screenUpdate() {
+    setState(() {});
+  }
+
 }
 
 
 // https://www.didierboelens.com/2018/05/hint-5-how-to-refresh-the-content-of-a-dialog-via-setstate/
 class MyDialogContent extends StatefulWidget {
+
+  _HomeState _homeState;
+
+  MyDialogContent(this._homeState);
+
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _MyDialogContentState();
   }
+
 }
 
 class _MyDialogContentState extends State<MyDialogContent> {
 
   File _image;
+  bool save = false;
+  bool isError = false;
 
   getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
@@ -193,6 +246,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
       _image = croppedFile;
       print("Cropped file: "+ _image.path);
     });
+
   }
 
   @override
@@ -211,10 +265,19 @@ class _MyDialogContentState extends State<MyDialogContent> {
           _renderBackgroundOpacity(),
           _renderCameraButton(),
           _renderForegroundDialogContent()
-
         ],
       ),
     );
+  }
+
+  //CONTROLLERS
+  final _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the Widget is disposed
+    _textEditingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -258,6 +321,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               icon: Icon(Icons.camera_alt),
               color: Colors.white,
               iconSize: 64.0,
+              tooltip: "Pick Image",
               onPressed: () { getImage(); },
             ),
           ),
@@ -273,7 +337,6 @@ class _MyDialogContentState extends State<MyDialogContent> {
         Expanded(child: Container()),
         _renderTextFormField(),
         _renderButtons(),
-
       ],
     );
   }
@@ -297,9 +360,11 @@ class _MyDialogContentState extends State<MyDialogContent> {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0,left: 8.0,bottom: 16.0),
       child: TextFormField(
+        controller: _textEditingController,
         textAlign: TextAlign.center,
         cursorColor: Colors.white,
         autofocus: true,
+        maxLength: 30,
         style: TextStyle(
             color: Colors.white,
             fontFamily: 'Muli',
@@ -315,14 +380,14 @@ class _MyDialogContentState extends State<MyDialogContent> {
               fontWeight: FontWeight.bold
           ),
           focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: isError? BorderSide(color: Colors.red):BorderSide(color: Colors.white),
           ),
         ),
       ),
     );
   }
 
-  _renderButtons() {
+  Widget _renderButtons() {
     return Row(
       children: <Widget>[
         Expanded(
@@ -333,6 +398,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               child: Container(
                 child: IconButton(
                     icon: Icon(Icons.close, color: Colors.white,),
+                    tooltip: "Close",
                     onPressed: null
                 ),
               ),
@@ -343,11 +409,14 @@ class _MyDialogContentState extends State<MyDialogContent> {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
-              onTap:() {},
               child: Container(
                 child: IconButton(
                     icon: Icon(Icons.save,  color: Colors.white,),
-                    onPressed: null
+                    tooltip: "Save",
+                    onPressed: () {
+                      _saveCookbook();
+                      widget._homeState.displayRecord();
+                    }
                 ),
               ),
             ),
@@ -355,6 +424,32 @@ class _MyDialogContentState extends State<MyDialogContent> {
         ),
       ],
     );
+  }
+
+  Future _saveCookbook() async  {
+    if(_textEditingController.text.trim().isEmpty){
+      setState(() {
+        isError = true;
+      });
+    }else{
+      String base64Image = "DEFAULT";
+      if(_image != null){
+        List<int> imageBytes = _image.readAsBytesSync();
+        base64Image = base64Encode(imageBytes);
+      }
+      var db = new DatabaseHelper();
+      var cookbook = new Cookbook(_textEditingController.text, base64Image);
+      await db.saveCookbook(cookbook).whenComplete((){
+        Navigator.of(context).pop();
+      });
+      /*if(save){
+      Cookbook cookbook = new Cookbook();
+      cookbook.name = _textEditingController.text;
+      cookbook.coverBase64Encoded = _image.path;
+      cookbook.recipes = [];
+      CookbookDBHandler.saveCookbook(cookbook);
+    }*/
+    }
   }
 
 }

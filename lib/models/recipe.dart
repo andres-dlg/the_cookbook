@@ -8,7 +8,7 @@ class Recipe {
   String summary;
   List<Ingredient> ingredients;
   List<Step> steps;
-  String coverUrl;
+  String coverBase64Encoded;
   Level level;
   int durationInMinutes;
   int diners;
@@ -19,7 +19,7 @@ class Recipe {
     this.summary,
     this.ingredients,
     this.steps,
-    this.coverUrl,
+    this.coverBase64Encoded,
     this.level,
     this.durationInMinutes,
     this.diners

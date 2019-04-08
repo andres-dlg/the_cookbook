@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
-import 'package:the_cookbook/pages/recipe_steps_page.dart';
+import 'package:the_cookbook/pages/recipe/recipe_steps_page.dart';
 import 'package:the_cookbook/utils/separator.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
@@ -58,7 +58,7 @@ class RecipeDetail extends StatelessWidget {
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
           background: Image.network(
-            recipe.coverUrl,
+            recipe.coverBase64Encoded,
             fit: BoxFit.cover,
           )),
     );

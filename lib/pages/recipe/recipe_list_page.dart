@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/models/recipe.dart';
-import 'package:the_cookbook/pages/recipe_detail_page.dart';
+import 'package:the_cookbook/pages/recipe/recipe_detail_page.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
 class RecipeList extends StatelessWidget {
@@ -13,16 +13,94 @@ class RecipeList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(cookbook.name),
-      ),
+      appBar: _renderAppBar(context),
       body: ListView.builder(
         itemCount: this.cookbook.recipes == null ? 0 : this.cookbook.recipes.length,
         itemBuilder: (context, index) {
           return _renderRecipeCard(context, this.cookbook.recipes[index]);
         }
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.create),
+          tooltip: "Create recipe",
+          onPressed: (){
+          }
+      ),
     );
+  }
+
+  Widget _renderAppBar(BuildContext context){
+    final String title = cookbook.name;
+    final double barHeight = 50.0;
+    final double statusbarHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
+    return PreferredSize(
+      child: Container(
+        padding: new EdgeInsets.only(top: statusbarHeight),
+        height: statusbarHeight + barHeight,
+        child: Row(
+          children: <Widget>[
+            Material(
+              color: Colors.transparent,
+              child: new IconButton(
+                  icon: Icon(Icons.arrow_back_ios),
+                  color: Colors.blueAccent,
+                  onPressed: () {
+                    Navigator.of(context).pop(this);
+                  }
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 72.0),
+              child: new Center(
+                child: new Text(
+                  title,
+                  style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
+                ),
+              ),
+            ),
+          ],
+        ),
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+              colors: [Colors.white, Colors.blueAccent],
+              begin: const FractionalOffset(0.0, 0.0),
+              end: const FractionalOffset(0.5, 0.0),
+              stops: [0.0, 1.0],
+              tileMode: TileMode.clamp
+          ),
+        ),
+      ),
+      preferredSize: new Size(
+          MediaQuery.of(context).size.width,
+          150.0
+      ),
+    );
+    /*return AppBar(
+      elevation: 0.0,
+      backgroundColor: Colors.transparent,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios),
+        color: Colors.grey[500],
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      title: Padding(
+        padding: const EdgeInsets.only(right: 48.0),
+        child: Center(
+          child: Text(
+            cookbook.name,
+            style: TextStyle(
+              color: Colors.black,
+              fontFamily: 'Muli',
+            ),
+          ),
+        ),
+      ),
+    );*/
   }
 
   Widget _renderRecipeCard(BuildContext context, Recipe recipe) {
@@ -46,7 +124,7 @@ class RecipeList extends StatelessWidget {
       width: 128.0,
       height: 128.0,
       child: Image.network(
-          recipe.coverUrl,
+          recipe.coverBase64Encoded,
           fit: BoxFit.cover
       ),
     );
