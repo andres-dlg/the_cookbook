@@ -61,7 +61,7 @@ class _HomeState extends State<Home> implements CookbookContract {
 
   Widget _renderAppBar(){
     final String title = "THE COOKBOOK";
-    final double barHeight = 50.0;
+    final double barHeight = 60.0;
     final double statusbarHeight = MediaQuery
         .of(context)
         .padding
@@ -76,19 +76,26 @@ class _HomeState extends State<Home> implements CookbookContract {
             new Center(
               child: new Text(
                 title,
-                style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
+                style: new TextStyle(fontSize: 24.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
               ),
             ),
           ],
         ),
         decoration: new BoxDecoration(
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
           gradient: new LinearGradient(
-              colors: [Colors.white, Colors.blueAccent],
+              colors: [Color.fromRGBO(179,229,252, 1), Colors.blueAccent],
               begin: const FractionalOffset(0.0, 0.0),
               end: const FractionalOffset(0.5, 0.0),
               stops: [0.0, 1.0],
               tileMode: TileMode.clamp
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black,
+              blurRadius: 10.0
+            )
+          ]
         ),
       ),
       preferredSize: new Size(

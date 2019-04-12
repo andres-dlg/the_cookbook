@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/models/recipe.dart';
+import 'package:the_cookbook/pages/recipe/create_recipe_page.dart';
 import 'package:the_cookbook/pages/recipe/recipe_detail_page.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
@@ -24,6 +25,10 @@ class RecipeList extends StatelessWidget {
         child: Icon(Icons.create),
           tooltip: "Create recipe",
           onPressed: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CreateRecipe()),
+            );
           }
       ),
     );
@@ -31,29 +36,53 @@ class RecipeList extends StatelessWidget {
 
   Widget _renderAppBar(BuildContext context){
     final String title = cookbook.name;
-    final double barHeight = 50.0;
+    final double barHeight = 60.0;
     final double statusbarHeight = MediaQuery
         .of(context)
         .padding
         .top;
     return PreferredSize(
+      preferredSize: new Size(
+          MediaQuery.of(context).size.width,
+          150.0
+      ),
       child: Container(
         padding: new EdgeInsets.only(top: statusbarHeight),
         height: statusbarHeight + barHeight,
+        decoration: new BoxDecoration(
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
+            gradient: new LinearGradient(
+                colors: [Color.fromRGBO(179,229,252, 1), Colors.blueAccent],
+                begin: const FractionalOffset(0.0, 0.0),
+                end: const FractionalOffset(0.5, 0.0),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp
+            ),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 10.0
+              )
+            ]
+        ),
         child: Row(
           children: <Widget>[
-            Material(
-              color: Colors.transparent,
-              child: new IconButton(
-                  icon: Icon(Icons.arrow_back_ios),
-                  color: Colors.blueAccent,
-                  onPressed: () {
-                    Navigator.of(context).pop(this);
-                  }
-              ),
-            ),
+             Material(
+               type: MaterialType.transparency,
+               child: Container(
+                 height: 80,
+                 width: 80,
+                 child: IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
+                      color: Colors.blueAccent,
+                      onPressed: () {
+                        Navigator.of(context).pop(this);
+                      }
+                  ),
+               ),
+             ),
             Padding(
-              padding: const EdgeInsets.only(left: 72.0),
+              padding: const EdgeInsets.only(left: 44.0),
               child: new Center(
                 child: new Text(
                   title,
@@ -63,20 +92,8 @@ class RecipeList extends StatelessWidget {
             ),
           ],
         ),
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
-              colors: [Colors.white, Colors.blueAccent],
-              begin: const FractionalOffset(0.0, 0.0),
-              end: const FractionalOffset(0.5, 0.0),
-              stops: [0.0, 1.0],
-              tileMode: TileMode.clamp
-          ),
-        ),
       ),
-      preferredSize: new Size(
-          MediaQuery.of(context).size.width,
-          150.0
-      ),
+
     );
     /*return AppBar(
       elevation: 0.0,
