@@ -20,35 +20,48 @@ class CreateRecipeSteps extends StatefulWidget{
 
 class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
-  List<RecipeStep.Step> _steps = [];
+  List<RecipeStep.Step> _steps;
 
-  var _image;
+  Map<int,File> _stepImages;
+
+  //var _image;
+
+  var _currentPage = 0;
+
+  PageController _pageController;
 
   @override
   void initState() {
 
-    RecipeStep.Step step = new RecipeStep.Step(
+    /*RecipeStep.Step step = new RecipeStep.Step(
         title: "Step 1",
-        description: "BBBBBBBBBBBBBBBBBBB"
     );
-
     _steps.add(step);
+    RecipeStep.Step step2 = new RecipeStep.Step(
+      title: "Step 2",
+    );
+    _steps.add(step2);*/
+    _steps = [];
+    _stepImages = new Map();
 
+    _currentPage = 0;
+
+    _pageController = PageController(viewportFraction: 0.9);
     super.initState();
   }
 
   @override
   void dispose() {
-    _steps = [];
+    _steps.clear();
     super.dispose();
   }
 
-  getImage() async {
+  getImage(int itemIndex) async {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    _cropImage(image);
+    _cropImage(image, itemIndex);
   }
 
-  Future _cropImage(File imageFile) async {
+  Future _cropImage(File imageFile, itemIndex) async {
     File croppedFile = await ImageCropper.cropImage(
       sourcePath: imageFile.path,
       ratioX: 1.0,
@@ -58,15 +71,24 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
     );
 
     setState(() {
-      _image = croppedFile;
-      print("Cropped file: " + _image.path);
+      //_image = croppedFile;
+      _stepImages[itemIndex] = croppedFile;
+      print("Cropped file: " + croppedFile.path);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: Colors.blueAccent,
+      floatingActionButton: Padding(
+        padding:_steps.length > 0 ? const EdgeInsets.only(top: 128.0, left: 320) : const EdgeInsets.all(0),
+        child: FloatingActionButton(
+          child: Icon(Icons.add),
+          backgroundColor: Colors.pinkAccent,
+          onPressed: () {_createNewStep();},
+        ),
+      ),
+      floatingActionButtonLocation: _steps.length > 0 ? FloatingActionButtonLocation.startTop : FloatingActionButtonLocation.endFloat,
       body: Container(
           decoration: new BoxDecoration(
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
@@ -90,78 +112,29 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
     );
   }
 
-
-  Widget _renderCameraButton(){
-    return Center(
-      child: Material(
-        type: MaterialType.transparency,
-        color: Colors.transparent,
-        child: IconButton(
-          icon: Icon(Icons.camera_alt),
-          color: Colors.white,
-          iconSize: 64.0,
-          tooltip: "Pick cover Image",
-          onPressed: () { getImage(); },
-        ),
-      ),
-    );
-  }
-
-  Widget _renderBackgroundImage() {
-    return Container(
-        width: MediaQuery.of(context).size.width,
-        child: _image == null ?
-        Image.asset(
-          "assets/images/food_pattern.png",
-          fit: BoxFit.cover,
-        ) :
-        Image.file(
-          _image,
-          fit: BoxFit.cover,
-          gaplessPlayback: false,
-        )
-    );
-  }
-
-  Widget _renderBackgroundOpacity() {
-    return Container(
-      color: Color.fromRGBO(0, 0, 0, 0.5),
-    );
-  }
-
   Widget _renderCarousel(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24.0),
-      child: DefaultTabController(
-          length: _steps.length,
-          child: Builder(
-            builder: (BuildContext context) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: <Widget>[
-                  TabPageSelector(),
-                  Expanded(
-                    child: IconTheme(
-                        data: IconThemeData(
-                          size: 128.0,
-                          color: Theme.of(context).accentColor
-                        ),
-                        child: TabBarView(children: _renderSteps())),
-                  )
-                ],
-              ),
-            ),
-          )
-      )
+    return PageView.builder(
+      // store this controller in a State to save the carousel scroll position
+      controller: _pageController,
+      itemCount: _steps.length,
+      itemBuilder: (BuildContext context, int itemIndex) {
+        return _buildCarouselItem(context, _currentPage, itemIndex);
+      },
     );
   }
 
-  Widget _renderStepSlide(BuildContext context, RecipeStep.Step step) {
+  Widget _buildCarouselItem(BuildContext context, int carouselIndex, int itemIndex) {
+    return Container(
+      child: _renderStepSlide(context, _steps[itemIndex], itemIndex),
+    );
+  }
+
+  Widget _renderStepSlide(BuildContext context, RecipeStep.Step step, int itemIndex) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+      padding: const EdgeInsets.only(top: 40.0, bottom: 16.0),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(horizontal: 3.0),
+        margin: EdgeInsets.symmetric(horizontal: 4.0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24.0),
@@ -180,8 +153,8 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
               children: <Widget>[
                 _renderStepTitle(step),
                 new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
-                _renderStepPhoto(context),
-                new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
+                _renderStepPhoto(context, itemIndex),
+                //new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
                 _renderStepDescription(step)
               ],
             ),
@@ -203,38 +176,107 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
     );
   }
 
-  Widget _renderStepPhoto(BuildContext context){
+  Widget _renderStepPhoto(BuildContext context, int itemIndex){
     return Container(
       height: 248,
       child: Stack(
         children: <Widget>[
-          _renderBackgroundImage(),
+          _renderBackgroundImage(itemIndex),
           _renderBackgroundOpacity(),
-          _renderCameraButton()
+          _renderCameraButton(itemIndex)
         ],
       ),
     );
   }
 
-  Widget _renderStepDescription(RecipeStep.Step step){
-    return TextField(
-      keyboardType: TextInputType.multiline,
-      maxLines: null,
-      maxLength: 1000,
-      onChanged: (value){
-        setState(() {
-          //PageStorage.of(context).writeState(context, value, identifier: "recipeSummary");
-        });
-      },
+  Widget _renderCameraButton(int itemIndex){
+    return Center(
+      child: Material(
+        type: MaterialType.transparency,
+        color: Colors.transparent,
+        child: IconButton(
+          icon: Icon(Icons.camera_alt),
+          color: Colors.white,
+          iconSize: 64.0,
+          tooltip: "Pick cover Image",
+          onPressed: () { getImage(itemIndex); },
+        ),
+      ),
     );
   }
 
-  List<Widget> _renderSteps() {
-    List<Widget> slides = [];
-    for(RecipeStep.Step step in _steps){
-      slides.add(_renderStepSlide(context, step));
-    }
-    return slides;
+  Widget _renderBackgroundImage(int itemIndex) {
+    return Container(
+        width: MediaQuery.of(context).size.width,
+        child: _stepImages[itemIndex] == null ?
+        Image.asset(
+          "assets/images/food_pattern.png",
+          fit: BoxFit.cover,
+        ) :
+        Image.file(
+          _stepImages[itemIndex],
+          fit: BoxFit.cover,
+          gaplessPlayback: false,
+        )
+    );
+  }
+
+  Widget _renderBackgroundOpacity() {
+    return Container(
+      color: Color.fromRGBO(0, 0, 0, 0.5),
+    );
+  }
+
+  Widget _renderStepDescription(RecipeStep.Step step){
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: Text(
+            "Description",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 24.0,
+              fontFamily: 'Muli',
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
+        TextField(
+          keyboardType: TextInputType.multiline,
+          maxLines: null,
+          maxLength: 1000,
+          decoration: InputDecoration(
+            hintText: "Write here!!"
+          ),
+          onChanged: (value){
+            setState(() {
+              //PageStorage.of(context).writeState(context, value, identifier: "recipeSummary");
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  void _createNewStep() {
+
+    var nextStep = _steps.length + 1;
+
+    RecipeStep.Step newStep = new RecipeStep.Step(
+      title: "Step $nextStep",
+    );
+
+    _steps.add(newStep);
+
+    setState(() {
+      _pageController.animateToPage(
+          nextStep,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.linear);
+    });
+
   }
 
 }
