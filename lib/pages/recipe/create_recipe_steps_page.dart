@@ -1,15 +1,18 @@
 import 'dart:io';
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:the_cookbook/utils/separator.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
+import 'package:the_cookbook/storage/create_recipe_storage.dart';
 
+// ignore: must_be_immutable
 class CreateRecipeSteps extends StatefulWidget{
 
-  const CreateRecipeSteps({Key key}) : super(key: key);
+  PageStorageBucket bucket;
+
+  CreateRecipeSteps({Key key, this.bucket}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -30,29 +33,21 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
   PageController _pageController;
 
-  @override
   void initState() {
-
-    /*RecipeStep.Step step = new RecipeStep.Step(
-        title: "Step 1",
-    );
-    _steps.add(step);
-    RecipeStep.Step step2 = new RecipeStep.Step(
-      title: "Step 2",
-    );
-    _steps.add(step2);*/
-    _steps = [];
-    _stepImages = new Map();
 
     _currentPage = 0;
 
     _pageController = PageController(viewportFraction: 0.9);
+
+    _steps = CreateRecipeStorage.getSteps();
+
+    _stepImages = CreateRecipeStorage.getStepImages();
+
     super.initState();
   }
 
   @override
   void dispose() {
-    _steps.clear();
     super.dispose();
   }
 
@@ -71,8 +66,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
     );
 
     setState(() {
-      //_image = croppedFile;
-      _stepImages[itemIndex] = croppedFile;
+      CreateRecipeStorage.setStepImage(itemIndex,croppedFile);
       print("Cropped file: " + croppedFile.path);
     });
   }
@@ -81,15 +75,16 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Padding(
-        padding:_steps.length > 0 ? const EdgeInsets.only(top: 128.0, left: 320) : const EdgeInsets.all(0),
+        padding:CreateRecipeStorage.getSteps().length > 0 ? const EdgeInsets.only(top: 128.0, left: 320) : const EdgeInsets.all(0),
         child: FloatingActionButton(
           child: Icon(Icons.add),
           backgroundColor: Colors.pinkAccent,
           onPressed: () {_createNewStep();},
         ),
       ),
-      floatingActionButtonLocation: _steps.length > 0 ? FloatingActionButtonLocation.startTop : FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: CreateRecipeStorage.getSteps().length > 0 ? FloatingActionButtonLocation.startTop : FloatingActionButtonLocation.endFloat,
       body: Container(
+          key: PageStorageKey('scrollStepsPosition'),
           decoration: new BoxDecoration(
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
               gradient: new LinearGradient(
@@ -116,7 +111,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
     return PageView.builder(
       // store this controller in a State to save the carousel scroll position
       controller: _pageController,
-      itemCount: _steps.length,
+      itemCount: CreateRecipeStorage.getSteps().length,
       itemBuilder: (BuildContext context, int itemIndex) {
         return _buildCarouselItem(context, _currentPage, itemIndex);
       },
@@ -125,7 +120,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
   Widget _buildCarouselItem(BuildContext context, int carouselIndex, int itemIndex) {
     return Container(
-      child: _renderStepSlide(context, _steps[itemIndex], itemIndex),
+      child: _renderStepSlide(context, CreateRecipeStorage.getStep(itemIndex), itemIndex),
     );
   }
 
@@ -155,7 +150,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
                 new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
                 _renderStepPhoto(context, itemIndex),
                 //new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
-                _renderStepDescription(step)
+                _renderStepDescription(step, itemIndex)
               ],
             ),
           ),
@@ -208,13 +203,13 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
   Widget _renderBackgroundImage(int itemIndex) {
     return Container(
         width: MediaQuery.of(context).size.width,
-        child: _stepImages[itemIndex] == null ?
+        child: CreateRecipeStorage.getStepImage(itemIndex) == null ?
         Image.asset(
           "assets/images/food_pattern.png",
           fit: BoxFit.cover,
         ) :
         Image.file(
-          _stepImages[itemIndex],
+          CreateRecipeStorage.getStepImage(itemIndex),
           fit: BoxFit.cover,
           gaplessPlayback: false,
         )
@@ -227,7 +222,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
     );
   }
 
-  Widget _renderStepDescription(RecipeStep.Step step){
+  Widget _renderStepDescription(RecipeStep.Step step, int itemIndex){
     return Column(
       children: <Widget>[
         Padding(
@@ -244,6 +239,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
         ),
         new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
         TextField(
+          controller: TextEditingController(text: CreateRecipeStorage.getStep(itemIndex).description),
           keyboardType: TextInputType.multiline,
           maxLines: null,
           maxLength: 1000,
@@ -251,9 +247,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
             hintText: "Write here!!"
           ),
           onChanged: (value){
-            setState(() {
-              //PageStorage.of(context).writeState(context, value, identifier: "recipeSummary");
-            });
+            CreateRecipeStorage.getStep(itemIndex).description = value;
           },
         ),
       ],
@@ -262,13 +256,11 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
   void _createNewStep() {
 
-    var nextStep = _steps.length + 1;
+    var nextStep = CreateRecipeStorage.getSteps().length + 1;
 
-    RecipeStep.Step newStep = new RecipeStep.Step(
-      title: "Step $nextStep",
-    );
+    RecipeStep.Step newStep = new RecipeStep.Step(0, "Step $nextStep", "", "DEFAULT", id: 1);
 
-    _steps.add(newStep);
+    CreateRecipeStorage.setStep(newStep);
 
     setState(() {
       _pageController.animateToPage(

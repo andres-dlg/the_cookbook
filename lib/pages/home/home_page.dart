@@ -9,7 +9,6 @@ import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_list_page.dart';
 import 'package:the_cookbook/pages/home/favourites_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Home extends StatefulWidget {
 
@@ -182,26 +181,9 @@ class _HomeState extends State<Home> implements CookbookContract {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // return object of type Dialog
         return AlertDialog(
           contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-          //title: new Text("Alert Dialog title"),
-          content: new MyDialogContent(this),//_renderDialogBody(),
-          /*actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            new FlatButton(
-              child: new Text("Save"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],*/
+          content: new MyDialogContent(this),
         );
       },
     );
@@ -216,6 +198,7 @@ class _HomeState extends State<Home> implements CookbookContract {
 
 
 // https://www.didierboelens.com/2018/05/hint-5-how-to-refresh-the-content-of-a-dialog-via-setstate/
+// ignore: must_be_immutable
 class MyDialogContent extends StatefulWidget {
 
   _HomeState _homeState;

@@ -6,6 +6,7 @@ import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/recipe/recipe_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
 
+// ignore: must_be_immutable
 class CookbookList extends StatelessWidget {
 
   CookbookPresenter cookbookPresenter;

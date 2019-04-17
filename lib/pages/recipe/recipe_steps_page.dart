@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/recipe.dart';
@@ -122,11 +125,32 @@ class RecipeStepsPage extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 248,
-      child: Image.network(
-        step.photo,
+      child: step.photoBase64Encoded == null || step.photoBase64Encoded.trim().isEmpty ?
+      Image.asset(
+        "assets/images/food_pattern.png",
         fit: BoxFit.cover,
-      ),
+      ) :
+      _itemThumnail(step)
     );
+  }
+
+  Widget _itemThumnail(RecipeStep.Step step) {
+    var thumb;
+    if(step.photoBase64Encoded == "DEFAULT"){
+      thumb = SizedBox.expand(
+          child: Image.asset(
+            "assets/images/food_pattern.png",
+            fit: BoxFit.cover,
+          )
+      );
+    }else{
+      Uint8List _bytesImage;
+      _bytesImage = Base64Decoder().convert(step.photoBase64Encoded);
+      thumb = SizedBox.expand(
+          child: Image.memory(_bytesImage)
+      );
+    }
+    return thumb;
   }
 
   Widget _renderStepDescription(RecipeStep.Step step){

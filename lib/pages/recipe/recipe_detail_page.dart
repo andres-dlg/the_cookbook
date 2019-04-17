@@ -6,6 +6,7 @@ import 'package:the_cookbook/pages/recipe/recipe_steps_page.dart';
 import 'package:the_cookbook/utils/separator.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
+// ignore: must_be_immutable
 class RecipeDetail extends StatelessWidget {
 
   static double height = 300.0;
@@ -120,7 +121,7 @@ class RecipeDetail extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
       child: Text(
-        "Level: " + Utilities.getDifficultyLevelString(recipe.level),
+        "Level: " + recipe.level,
         style: TextStyle(
             fontSize: 20.0,
             fontFamily: 'Muli'
@@ -224,7 +225,7 @@ class RecipeDetail extends StatelessWidget {
     );
   }
 
-  Container _getGradient() {
+  /*Container _getGradient() {
     return new Container(
       margin: new EdgeInsets.only(top: 190.0),
       height: 110.0,
@@ -240,6 +241,6 @@ class RecipeDetail extends StatelessWidget {
         ),
       ),
     );
-  }
+  }*/
 
 }

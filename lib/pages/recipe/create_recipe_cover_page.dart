@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:the_cookbook/pages/recipe/create_recipe_page.dart';
 import 'package:the_cookbook/utils/separator.dart';
 
+// ignore: must_be_immutable
 class CreateRecipeCover extends StatefulWidget{
 
-  const CreateRecipeCover({
-    Key key,
-  }) : super(key: key);
+  Function callback;
+
+  CreateRecipeCover(this.callback, {Key key, PageStorageBucket bucket}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -59,6 +59,8 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
     if(bgPhoto != null){
       _image = bgPhoto;
     }
+
+    super.initState();
 
   }
 
@@ -136,6 +138,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
           ),
         ),
       ),
+      automaticallyImplyLeading: true,
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       pinned: true,
@@ -248,7 +251,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
             fontWeight: FontWeight.bold
         ),
         decoration: InputDecoration(
-          labelText: 'Recipe name',
+          labelText: 'Recipe name *',
           labelStyle: TextStyle(
               fontFamily: 'Muli',
               fontSize: 20.0,
@@ -258,6 +261,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
         onChanged: (value){
           setState(() {
             PageStorage.of(context).writeState(context, _textRecipeNameController.text, identifier: "recipeName");
+            this.widget.callback();
           });
         },
       ),
@@ -344,7 +348,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
               ),
               decoration: InputDecoration(
                 counterText: "",
-                hintText: "???",
+                hintText: "---",
                   enabledBorder: new UnderlineInputBorder(
                       borderSide: new BorderSide(
                           color: Colors.grey[200]

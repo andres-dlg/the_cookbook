@@ -37,7 +37,7 @@ class MockIngredient extends Ingredient {
     ),
   ];
 
-  static List<Ingredient> FetchAll(){
+  static List<Ingredient> fetchAll(){
     return ingredients;
   }
 }

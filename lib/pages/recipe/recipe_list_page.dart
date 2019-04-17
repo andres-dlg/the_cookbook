@@ -5,20 +5,32 @@ import 'package:the_cookbook/pages/recipe/create_recipe_page.dart';
 import 'package:the_cookbook/pages/recipe/recipe_detail_page.dart';
 import 'package:the_cookbook/utils/utilities.dart';
 
-class RecipeList extends StatelessWidget {
+class RecipeList extends StatefulWidget {
 
   final Cookbook cookbook;
 
   RecipeList({this.cookbook});
 
   @override
+  _RecipeListState createState() => _RecipeListState();
+}
+
+class _RecipeListState extends State<RecipeList> {
+
+  @override
+  void initState() {
+    // TODO: TRAER TODAS LAS RECIPES DEL COOKBOOK
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _renderAppBar(context),
       body: ListView.builder(
-        itemCount: this.cookbook.recipes == null ? 0 : this.cookbook.recipes.length,
+        itemCount: this.widget.cookbook.recipes == null ? 0 : this.widget.cookbook.recipes.length,
         itemBuilder: (context, index) {
-          return _renderRecipeCard(context, this.cookbook.recipes[index]);
+          return _renderRecipeCard(context, this.widget.cookbook.recipes[index]);
         }
       ),
       floatingActionButton: FloatingActionButton(
@@ -27,7 +39,7 @@ class RecipeList extends StatelessWidget {
           onPressed: (){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CreateRecipe()),
+              MaterialPageRoute(builder: (context) => CreateRecipe(widget.cookbook.id)),
             );
           }
       ),
@@ -35,7 +47,7 @@ class RecipeList extends StatelessWidget {
   }
 
   Widget _renderAppBar(BuildContext context){
-    final String title = cookbook.name;
+    final String title = widget.cookbook.name;
     final double barHeight = 60.0;
     final double statusbarHeight = MediaQuery
         .of(context)
@@ -221,6 +233,5 @@ class RecipeList extends StatelessWidget {
       MaterialPageRoute(builder: (context) => RecipeDetail(recipe: recipe)),
     );
   }
-
 }
 
