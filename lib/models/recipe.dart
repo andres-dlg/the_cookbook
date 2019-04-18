@@ -3,12 +3,12 @@ import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/step.dart';
 
 class Recipe {
-  int id;
+  int recipeId;
   int _cookbookId;
   String _name;
   String _summary;
   List<Ingredient> _ingredients;
-  List<Step> _steps;
+  List<Step> steps;
   String _coverBase64Encoded;
   String _level;
   int _durationInMinutes;
@@ -24,12 +24,14 @@ class Recipe {
     //this._diners
   );
 
+  set ingredients(value) => _ingredients = value;
+
   int get cookbookId => _cookbookId;
   String get name => _name;
   String get coverBase64Encoded => _coverBase64Encoded;
   String get summary => _summary;
   List<Ingredient> get ingredients => _ingredients;
-  List<Step> get steps => _steps;
+  //List<Step> get steps => _steps;
   String get level => _level;
   int get durationInMinutes => _durationInMinutes;
 
@@ -37,6 +39,7 @@ class Recipe {
     this._cookbookId = obj["cookbookId"];
     this._name = obj["name"];
     this._coverBase64Encoded = obj["coverBase64Encoded"];
+    //this._steps = obj["steps"];
     this._summary = obj["summary"];
     this._level = obj["level"];
     this._durationInMinutes = obj["durationInMinutes"];
@@ -48,13 +51,14 @@ class Recipe {
     map["name"] = _name;
     map["coverBase64Encoded"] = _coverBase64Encoded;
     map["summary"] = _summary;
+    //map["steps"] = _steps;
     map["level"] = _level;
     map["durationInMinutes"] = _durationInMinutes;
     return map;
   }
 
-  void setRecipeId(int id) {
-    this.id = id;
+  void setRecipeId(int recipeId) {
+    this.recipeId = recipeId;
   }
 
 }

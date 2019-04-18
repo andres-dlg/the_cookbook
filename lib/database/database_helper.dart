@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/models/step.dart';
@@ -50,12 +51,12 @@ class DatabaseHelper  {
       ");"
     );
     await db.execute(
-    "CREATE TABLE Ingredients ("
-      "ingredientId INTEGER PRIMARY KEY,"
-      "recipeId INTEGER,"
-      "name TEXT,"
-      "FOREIGN KEY(recipeId) REFERENCES Recipes(recipeId)"
-    ");"
+      "CREATE TABLE Ingredients ("
+        "ingredientId INTEGER PRIMARY KEY,"
+        "recipeId INTEGER,"
+        "description TEXT,"
+        "FOREIGN KEY(recipeId) REFERENCES Recipes(recipeId)"
+      ");"
     );
     await db.execute(
       "CREATE TABLE Steps ("
@@ -86,20 +87,20 @@ class DatabaseHelper  {
       cookbook.setCookbookId(list[i]["cookbookId"]);
       cookbooks.add(cookbook);
     }
-    print(cookbooks.length);
+    print("Cookbooks: " + cookbooks.length.toString());
     return cookbooks;
   }
 
   Future<int> deleteCookbook(Cookbook cookbook) async {
     var theCookbookDb = await db;
-    int res = await theCookbookDb.rawDelete('DELETE FROM Cookbooks WHERE cookbookId = ?', [cookbook.id]);
+    int res = await theCookbookDb.rawDelete('DELETE FROM Cookbooks WHERE cookbookId = ?', [cookbook.cookbookId]);
     return res;
   }
 
   Future<bool> updateCookbook(Cookbook cookbook) async {
     var theCookbookDb = await db;
     int res =   await theCookbookDb.update("Cookbooks", cookbook.toMap(),
-        where: "id = ?", whereArgs: <int>[cookbook.id]);
+        where: "id = ?", whereArgs: <int>[cookbook.cookbookId]);
     return res > 0 ? true : false;
   }
 
@@ -127,20 +128,20 @@ class DatabaseHelper  {
       recipe.setRecipeId(list[i]["recipeId"]);
       recipes.add(recipe);
     }
-    print(recipes.length);
+    print("Recipes: " + recipes.length.toString());
     return recipes;
   }
 
   Future<int> deleteRecipe(Recipe recipe) async {
     var theCookbookDb = await db;
-    int res = await theCookbookDb.rawDelete('DELETE FROM Recipes WHERE recipeId = ?', [recipe.id]);
+    int res = await theCookbookDb.rawDelete('DELETE FROM Recipes WHERE recipeId = ?', [recipe.recipeId]);
     return res;
   }
 
   Future<bool> updateRecipe(Recipe recipe) async {
     var theCookbookDb = await db;
     int res =   await theCookbookDb.update("Recipes", recipe.toMap(),
-        where: "recipeId = ?", whereArgs: <int>[recipe.id]);
+        where: "recipeId = ?", whereArgs: <int>[recipe.recipeId]);
     return res > 0 ? true : false;
   }
 
@@ -158,7 +159,7 @@ class DatabaseHelper  {
         'SELECT * FROM Steps '
         'INNER JOIN Recipes ON Steps.recipeId = Recipes.recipeId '
         'INNER JOIN Cookbooks ON Cookbooks.cookbookId = Recipes.cookbookId '
-        'WHERE recipeId = ? AND cookbookId = ?',
+        'WHERE Recipes.recipeId = ? AND Cookbooks.cookbookId = ?',
         [recipeId, cookbookId]
     );
     List<Step> steps = new List();
@@ -172,20 +173,63 @@ class DatabaseHelper  {
       step.setStepId(list[i]["stepId"]);
       steps.add(step);
     }
-    print(steps.length);
+    print("Steps:" + steps.length.toString());
     return steps;
   }
 
   Future<int> deleteStep(Step step) async {
     var theCookbookDb = await db;
-    int res = await theCookbookDb.rawDelete('DELETE FROM Steps WHERE stepId = ?', [step.id]);
+    int res = await theCookbookDb.rawDelete('DELETE FROM Steps WHERE stepId = ?', [step.stepId]);
     return res;
   }
 
   Future<bool> updateStep(Step step) async {
     var theCookbookDb = await db;
     int res =   await theCookbookDb.update("Steps", step.toMap(),
-        where: "stepId = ?", whereArgs: <int>[step.id]);
+        where: "stepId = ?", whereArgs: <int>[step.stepId]);
+    return res > 0 ? true : false;
+  }
+
+  // Step Ingredient
+
+  Future<int> saveIngredient(Ingredient ingredient) async {
+    var theCookbookDb = await db;
+    int res = await theCookbookDb.insert("Ingredients", ingredient.toMap());
+    return res;
+  }
+
+  Future<List<Ingredient>> getIngredients(int cookbookId, int recipeId) async {
+    var dbTheCookbook = await db;
+    List<Map> list = await dbTheCookbook.rawQuery(
+        'SELECT * FROM Ingredients '
+            'INNER JOIN Recipes ON Ingredients.recipeId = Recipes.recipeId '
+            'INNER JOIN Cookbooks ON Cookbooks.cookbookId = Recipes.cookbookId '
+            'WHERE Recipes.recipeId = ? AND Cookbooks.cookbookId = ?',
+        [recipeId, cookbookId]
+    );
+    List<Ingredient> ingredients = new List();
+    for (int i = 0; i < list.length; i++) {
+      var ingredient = new Ingredient(
+          list[i]["recipeId"],
+          list[i]["description"]
+      );
+      ingredient.setIngredientId(list[i]["ingredientId"]);
+      ingredients.add(ingredient);
+    }
+    print("Ingredients:" + ingredients.length.toString());
+    return ingredients;
+  }
+
+  Future<int> deleteIngredient(Ingredient ingredient) async {
+    var theCookbookDb = await db;
+    int res = await theCookbookDb.rawDelete('DELETE FROM Ingredients WHERE ingredientId = ?', [ingredient.ingredientId]);
+    return res;
+  }
+
+  Future<bool> updateIngredient(Ingredient ingredient) async {
+    var theCookbookDb = await db;
+    int res =   await theCookbookDb.update("Ingredient", ingredient.toMap(),
+        where: "ingredientId = ?", whereArgs: <int>[ingredient.ingredientId]);
     return res > 0 ? true : false;
   }
 

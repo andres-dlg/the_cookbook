@@ -1,7 +1,7 @@
 import 'package:the_cookbook/models/recipe.dart';
 
 class Cookbook {
-  int id;
+  int cookbookId;
   String _name;
   String _coverBase64Encoded;
   List<Recipe> recipes;
@@ -26,7 +26,7 @@ class Cookbook {
     map["coverBase64Encoded"] = _coverBase64Encoded;
     return map;
   }
-  void setCookbookId(int id) {
-    this.id = id;
+  void setCookbookId(int cookbookId) {
+    this.cookbookId = cookbookId;
   }
 }

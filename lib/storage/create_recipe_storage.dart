@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
+import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_cover_page.dart';
 
 class CreateRecipeStorage {
 
   static List<RecipeStep.Step> _steps;
 
   static Map<int,File> _stepImages;
+
+  static List<TextFieldAndController> _textFieldAndController;
 
   static getSteps(){
     if(_steps != null && _steps.length > 0){
@@ -45,5 +49,23 @@ class CreateRecipeStorage {
     return _steps[itemIndex];
   }
 
+  static getIngredients(){
+    if(_textFieldAndController != null && _textFieldAndController.length > 0){
+      return _textFieldAndController;
+    }else{
+      return new List<Ingredient>();
+    }
+  }
+
+  static void setIngredient(TextFieldAndController newIngredient) {
+    if(_textFieldAndController == null){
+      _textFieldAndController = new List<TextFieldAndController>();
+    }
+    _textFieldAndController.add(newIngredient);
+  }
+
+  static void deleteIngredient(TextFieldAndController tf) {
+    _textFieldAndController.remove(tf);
+  }
 
 }

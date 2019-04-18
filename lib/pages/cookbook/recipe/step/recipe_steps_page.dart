@@ -6,14 +6,32 @@ import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
 import 'package:the_cookbook/utils/separator.dart';
 
 // ignore: must_be_immutable
-class RecipeStepsPage extends StatelessWidget {
+class RecipeStepsPage extends StatefulWidget  {
 
   Recipe recipe;
 
   RecipeStepsPage({this.recipe});
+
+  @override
+  _RecipeStepsPageState createState() => _RecipeStepsPageState();
+}
+
+class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContract{
+
+  StepPresenter recipePresenter;
+
+  @override
+  void initState() {
+    recipePresenter = new StepPresenter(this);
+    recipePresenter.getSteps(widget.recipe.cookbookId, widget.recipe.recipeId).then((stepsList){
+      widget.recipe.steps = stepsList;
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,15 +47,22 @@ class RecipeStepsPage extends StatelessWidget {
   }
 
   Widget _renderBody(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      child: Stack(
-        children: <Widget>[
-          _renderCarousel(context),
-          _renderBackButton(context),
-        ],
-      ),
-    );
+    if(widget.recipe.steps!=null && widget.recipe.steps.length>0){
+      return Container(
+        height: MediaQuery.of(context).size.height,
+        child: Stack(
+          children: <Widget>[
+            _renderCarousel(context),
+            _renderBackButton(context),
+          ],
+        ),
+      );
+    }else{
+      return Center(
+        child: Text("No steps"),
+      );
+    }
+
   }
 
   Widget _renderCarousel(BuildContext context) {
@@ -45,7 +70,7 @@ class RecipeStepsPage extends StatelessWidget {
       height: MediaQuery.of(context).size.height,
       aspectRatio: 16/9,
       enlargeCenterPage: true,
-      items: recipe.steps.map((i) {
+      items: widget.recipe.steps.map((i) {
         return Builder(
           builder: (BuildContext context) {
             return _renderStepSlide(context, i);
@@ -163,4 +188,8 @@ class RecipeStepsPage extends StatelessWidget {
     );
   }
 
+  @override
+  void screenUpdate() {
+    setState(() {});
+  }
 }

@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:the_cookbook/storage/create_recipe_storage.dart';
 import 'package:the_cookbook/utils/separator.dart';
 
 // ignore: must_be_immutable
@@ -25,14 +27,20 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
 
   var _image;
 
+  //List<TextFieldAndController> _textFieldsAndController;
+
   //TEXT CONTROLLERS
   final _textRecipeNameController = TextEditingController();
   final _textMinutesController = TextEditingController();
   final _textSummaryController = TextEditingController();
 
+  //SCROLL CONTROLLER
+  //final _scrollController = ScrollController();
+
   @override
   void initState(){
 
+    //myFocusNode = FocusNode();
     //Fill form fields if another tab was selected and then returned to this.
 
     var difficulty = PageStorage.of(context).readState(context, identifier: "selectedDifficulty");
@@ -59,6 +67,8 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
     if(bgPhoto != null){
       _image = bgPhoto;
     }
+
+
 
     super.initState();
 
@@ -102,7 +112,6 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
 
   @override
   void dispose() {
-    // Clean up the controller when the Widget is disposed
     _textRecipeNameController.dispose();
     super.dispose();
   }
@@ -110,6 +119,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
+      //controller: _scrollController,
       headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
         return <Widget>[
           _renderAppBar(context)
@@ -200,6 +210,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
 
   Widget _renderBody(BuildContext context){
     return SingleChildScrollView(
+      //controller: _scrollController,
       key: PageStorageKey('scrollPosition'),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -232,6 +243,10 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
               height: 16,
             ),
             _renderRecipeSummary(context),
+            Container(
+              height: 16,
+            ),
+            _renderRecipeIngredients(context)
           ],
         ),
       ),
@@ -403,5 +418,112 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
       ),
     );
   }
+
+  Widget _renderRecipeIngredients(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Stack(
+                children: <Widget>[
+                  Center(
+                    child: Text(
+                      "Ingredients",
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          fontFamily: 'Muli'
+                      )
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30.0),
+                    child: Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FloatingActionButton(
+                        mini: true,
+                        child: Icon(Icons.add),
+                        onPressed: () {
+                          _addTextField();
+                        },
+                      )
+                    ],
+                  )
+                ],
+              ),
+              Wrap(
+                children: <Widget>[
+                  Container(
+                    child: Column(
+                      children: _renderTextFields()
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addTextField() {
+    var rnd = new Random();
+    var keytext = rnd.nextInt(999999999);
+    TextEditingController controller = new TextEditingController();
+    TextFormField textField = new TextFormField(
+      key: ValueKey(keytext),
+      controller: controller,
+      maxLength: 40,
+      textInputAction: TextInputAction.send,
+      decoration: InputDecoration(
+        counterText: "",
+        hintText: "Type here",
+        suffixIcon: IconButton(icon: Icon(Icons.delete), onPressed: (){
+          deleteTextField(ValueKey(keytext));
+        })
+      ),
+    );
+    TextFieldAndController textFieldAndController = new TextFieldAndController(textField,controller);
+    CreateRecipeStorage.setIngredient(textFieldAndController);
+    setState(() {
+      //_scrollController.animateTo(_scrollController.position.maxScrollExtent+48.0, duration: Duration(milliseconds: 200), curve: Curves.linearToEaseOut);
+    });
+  }
+
+  List<Widget> _renderTextFields() {
+    List<Widget> _textFields = new List<Widget>();
+    for(TextFieldAndController tf in CreateRecipeStorage.getIngredients()){
+      _textFields.add(tf.textField);
+    }
+    return _textFields;
+  }
+
+  void deleteTextField(ValueKey<int> valueKey) {
+    for(TextFieldAndController tf in CreateRecipeStorage.getIngredients()){
+      if(tf.textField.key == valueKey){
+        CreateRecipeStorage.deleteIngredient(tf);
+        setState(() {});
+        break;
+      }
+    }
+  }
+
+}
+
+class TextFieldAndController{
+
+  TextFormField textField;
+  TextEditingController controller;
+
+  TextFieldAndController(this.textField, this.controller);
+
+  TextFormField get getTextField => textField;
 
 }

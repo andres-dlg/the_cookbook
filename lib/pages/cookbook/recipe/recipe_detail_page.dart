@@ -1,19 +1,39 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
-import 'package:the_cookbook/pages/recipe/recipe_steps_page.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/step/recipe_steps_page.dart';
 import 'package:the_cookbook/utils/separator.dart';
-import 'package:the_cookbook/utils/utilities.dart';
 
 // ignore: must_be_immutable
-class RecipeDetail extends StatelessWidget {
+class RecipeDetail extends StatefulWidget {
 
   static double height = 300.0;
 
   Recipe recipe;
 
   RecipeDetail({this.recipe});
+
+  @override
+  _RecipeDetailState createState() => _RecipeDetailState();
+}
+
+class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
+
+  RecipePresenter recipePresenter;
+
+  @override
+  void initState() {
+    recipePresenter = new RecipePresenter(this);
+    recipePresenter.getIngredients(widget.recipe.cookbookId, widget.recipe.recipeId).then((ingredients){
+      widget.recipe.ingredients = ingredients;
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +49,7 @@ class RecipeDetail extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.play_arrow),
         onPressed: () {
-          _navigateToRecipeSteps(context, recipe);
+          _navigateToRecipeSteps(context, widget.recipe);
         },
       ),
     );
@@ -58,11 +78,51 @@ class RecipeDetail extends StatelessWidget {
       elevation: 0.0,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
-          background: Image.network(
-            recipe.coverBase64Encoded,
-            fit: BoxFit.cover,
-          )),
+        background: _renderBackgroundImage(context)
+        /*Image.network(
+          recipe.coverBase64Encoded,
+          fit: BoxFit.cover,
+        )*/
+      ),
     );
+  }
+
+  Widget _renderBackgroundImage(BuildContext context) {
+    var thumb;
+    if(widget.recipe.coverBase64Encoded == "DEFAULT"){
+      thumb = Container(
+          width: MediaQuery.of(context).size.width,
+          child: Image.asset(
+            "assets/images/food_pattern.png",
+            fit: BoxFit.cover,
+          )
+      );
+    }else{
+      Uint8List _bytesImage;
+      _bytesImage = Base64Decoder().convert(widget.recipe.coverBase64Encoded);
+      thumb = Container(
+          width: MediaQuery.of(context).size.width,
+          child: Image.memory(
+            _bytesImage,
+            fit: BoxFit.cover,
+          )
+      );
+    }
+    return thumb;
+
+    /*return Container(
+        width: MediaQuery.of(context).size.width,
+        child: _image == null ?
+        Image.asset(
+          "assets/images/food_pattern.png",
+          fit: BoxFit.cover,
+        ) :
+        Image.file(
+          _image,
+          fit: BoxFit.cover,
+          gaplessPlayback: false,
+        )
+    );*/
   }
 
   Widget _renderBody(BuildContext context) {
@@ -77,6 +137,7 @@ class RecipeDetail extends StatelessWidget {
             _renderRecipeDifficulty(),
             new Separator(width: MediaQuery.of(context).size.width, heigth: 1.0, color: Colors.grey),
             _renderRecipeSummary(context),
+            Container(height: 16,),
             _renderRecipeIngredients(context),
           ],
         ),
@@ -88,7 +149,7 @@ class RecipeDetail extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
       child: Text(
-          recipe.name,
+          widget.recipe.name,
           style: TextStyle(
             color: Colors.black,
             fontSize: 24.0,
@@ -106,7 +167,7 @@ class RecipeDetail extends StatelessWidget {
         children: <Widget>[
           Icon(Icons.av_timer),
           Text(
-            " Minutes: " + recipe.durationInMinutes.toString(),
+            " Minutes: " + widget.recipe.durationInMinutes.toString(),
             style: TextStyle(
                 fontSize: 20.0,
                 fontFamily: 'Muli'
@@ -121,7 +182,7 @@ class RecipeDetail extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
       child: Text(
-        "Level: " + recipe.level,
+        "Level: " + widget.recipe.level,
         style: TextStyle(
             fontSize: 20.0,
             fontFamily: 'Muli'
@@ -150,7 +211,7 @@ class RecipeDetail extends StatelessWidget {
               ),
               Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
               Text(
-                  recipe.summary,
+                  widget.recipe.summary,
                   style: TextStyle(
                       fontSize: 18.0,
                       fontFamily: 'Muli'
@@ -182,7 +243,7 @@ class RecipeDetail extends StatelessWidget {
                   ),
                 ),
                 Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
-                _getIngredients(recipe.ingredients)
+                _getIngredients(widget.recipe.ingredients)
               ],
             ),
           ),
@@ -191,18 +252,18 @@ class RecipeDetail extends StatelessWidget {
   }
 
   Widget _getIngredients(List<Ingredient> ingredients){
+    if(ingredients!=null && ingredients.length>0){
+      List<Row> ingredientsRows = new List<Row>();
 
-    List<Row> ingredientsRows = new List<Row>();
-
-    for(Ingredient ingredient in ingredients){
-      ingredientsRows.add(new Row(
+      for(Ingredient ingredient in ingredients){
+        ingredientsRows.add(new Row(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: Icon(Icons.check_box),
             ),
             Text(
-              ingredient.name,
+              ingredient.description,
               style: TextStyle(
                   fontSize: 18.0,
                   fontFamily: 'Muli'
@@ -210,10 +271,16 @@ class RecipeDetail extends StatelessWidget {
             )
           ],
         )
+        );
+      }
+
+      return Column(children: ingredientsRows);
+    }else{
+      return Center(
+        child: Text("No ingredients"),
       );
     }
 
-    return Column(children: ingredientsRows);
 
   }
 
@@ -225,22 +292,8 @@ class RecipeDetail extends StatelessWidget {
     );
   }
 
-  /*Container _getGradient() {
-    return new Container(
-      margin: new EdgeInsets.only(top: 190.0),
-      height: 110.0,
-      decoration: new BoxDecoration(
-        gradient: new LinearGradient(
-          colors: <Color>[
-            new Color(0x00736AB7),
-            new Color(0xFF736AB7)
-          ],
-          stops: [0.0, 0.9],
-          begin: const FractionalOffset(0.0, 0.0),
-          end: const FractionalOffset(0.0, 1.0),
-        ),
-      ),
-    );
-  }*/
-
+  @override
+  void screenUpdate() {
+    setState(() {});
+  }
 }

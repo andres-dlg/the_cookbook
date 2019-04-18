@@ -1,4 +1,4 @@
-import 'package:the_cookbook/models/Ingredient.dart';
+/*import 'package:the_cookbook/models/Ingredient.dart';
 
 class MockIngredient extends Ingredient {
 
@@ -40,4 +40,4 @@ class MockIngredient extends Ingredient {
   static List<Ingredient> fetchAll(){
     return ingredients;
   }
-}
+}*/

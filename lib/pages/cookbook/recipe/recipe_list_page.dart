@@ -1,9 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/models/recipe.dart';
-import 'package:the_cookbook/pages/recipe/create_recipe_page.dart';
-import 'package:the_cookbook/pages/recipe/recipe_detail_page.dart';
-import 'package:the_cookbook/utils/utilities.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_page.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/recipe_detail_page.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
 
 class RecipeList extends StatefulWidget {
 
@@ -15,11 +18,16 @@ class RecipeList extends StatefulWidget {
   _RecipeListState createState() => _RecipeListState();
 }
 
-class _RecipeListState extends State<RecipeList> {
+class _RecipeListState extends State<RecipeList> implements RecipeContract {
+
+  RecipePresenter recipePresenter;
 
   @override
   void initState() {
-    // TODO: TRAER TODAS LAS RECIPES DEL COOKBOOK
+    recipePresenter = new RecipePresenter(this);
+    recipePresenter.getRecipes(widget.cookbook.cookbookId).then((recipeList){
+      widget.cookbook.recipes = recipeList;
+    });
     super.initState();
   }
 
@@ -39,7 +47,7 @@ class _RecipeListState extends State<RecipeList> {
           onPressed: (){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CreateRecipe(widget.cookbook.id)),
+              MaterialPageRoute(builder: (context) => CreateRecipe(widget.cookbook.cookbookId)),
             );
           }
       ),
@@ -149,14 +157,29 @@ class _RecipeListState extends State<RecipeList> {
   }
 
   Widget _renderRecipeThumbnail(Recipe recipe){
-    return Container(
-      width: 128.0,
-      height: 128.0,
-      child: Image.network(
-          recipe.coverBase64Encoded,
-          fit: BoxFit.cover
-      ),
-    );
+    var thumb;
+    if(recipe.coverBase64Encoded == "DEFAULT"){
+      thumb = Container(
+        width: 128.0,
+        height: 128.0,
+        child: Image.asset(
+          "assets/images/food_pattern.png",
+          fit: BoxFit.cover,
+        )
+      );
+    }else{
+      Uint8List _bytesImage;
+      _bytesImage = Base64Decoder().convert(recipe.coverBase64Encoded);
+      thumb = Container(
+        width: 128.0,
+        height: 128.0,
+        child: Image.memory(
+          _bytesImage,
+          fit: BoxFit.cover,
+        )
+      );
+    }
+    return thumb;
   }
 
   Widget _renderRecipeDetails(BuildContext context, Recipe recipe){
@@ -198,7 +221,7 @@ class _RecipeListState extends State<RecipeList> {
             ),
           ),
           Text(
-            Utilities.getDifficultyLevelString(recipe.level),
+            recipe.level,
             style: TextStyle(
                 fontSize: 12.0,
                 fontFamily: 'Muli'
@@ -233,5 +256,11 @@ class _RecipeListState extends State<RecipeList> {
       MaterialPageRoute(builder: (context) => RecipeDetail(recipe: recipe)),
     );
   }
+
+  @override
+  void screenUpdate() {
+    setState(() {});
+  }
+
 }
 

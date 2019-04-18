@@ -258,7 +258,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
     var nextStep = CreateRecipeStorage.getSteps().length + 1;
 
-    RecipeStep.Step newStep = new RecipeStep.Step(0, "Step $nextStep", "", "DEFAULT", id: 1);
+    RecipeStep.Step newStep = new RecipeStep.Step(0, "Step $nextStep", "", "DEFAULT", stepId: 1);
 
     CreateRecipeStorage.setStep(newStep);
 

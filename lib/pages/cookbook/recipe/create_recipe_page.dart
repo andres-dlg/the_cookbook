@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/database/database_helper.dart';
+import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
-import 'package:the_cookbook/pages/recipe/create_recipe_cover_page.dart';
-import 'package:the_cookbook/pages/recipe/create_recipe_steps_page.dart';
+import 'package:the_cookbook/models/step.dart' as RecipeStep;
+import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_cover_page.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/step/create_recipe_steps_page.dart';
 import 'package:the_cookbook/storage/create_recipe_storage.dart';
 
 class CreateRecipe extends StatefulWidget {
@@ -50,6 +52,7 @@ class _CreateRecipeState extends State<CreateRecipe>{
   void dispose() {
     CreateRecipeStorage.getSteps().clear();
     CreateRecipeStorage.getStepImages().clear();
+    CreateRecipeStorage.getIngredients().clear();
     super.dispose();
   }
 
@@ -119,6 +122,7 @@ class _CreateRecipeState extends State<CreateRecipe>{
 
   void _saveRecipe() async {
     var db = new DatabaseHelper();
+    //Prepare Recipe
     var recipe = new Recipe(
         widget.cookbookId,
         bucket.readState(context,identifier: "recipeName").toString().trim(),
@@ -127,9 +131,19 @@ class _CreateRecipeState extends State<CreateRecipe>{
         bucket.readState(context,identifier: "selectedDifficulty").toString().trim(),
         int.parse(bucket.readState(context,identifier: "selectedMinutes").toString().trim()),
     );
-    int res = await db.saveRecipe(recipe).whenComplete((){
-      Navigator.pop(context);
+    // Save Recipe and when it finished, save Steps
+    await db.saveRecipe(recipe).then((recipeId){
+      _saveIngredients(db, CreateRecipeStorage.getIngredients(), recipeId);
+      _saveSteps(db, CreateRecipeStorage.getSteps(), recipeId);
     });
+  }
+
+  void _saveSteps(DatabaseHelper db, steps, int recipeId) async {
+    for(RecipeStep.Step step in steps){
+      step.recipeId = recipeId;
+      db.saveStep(step);
+    }
+    Navigator.pop(context);
   }
 
   String _encodeBgPhoto() {
@@ -140,6 +154,13 @@ class _CreateRecipeState extends State<CreateRecipe>{
       base64Image = base64Encode(imageBytes);
     }
     return base64Image;
+  }
+
+  void _saveIngredients(DatabaseHelper db, ingredients, int recipeId) {
+    for(TextFieldAndController ingredient in ingredients){
+      Ingredient ing = new Ingredient(recipeId, ingredient.textField.controller.text);
+      db.saveIngredient(ing);
+    }
   }
 
 }
