@@ -69,6 +69,7 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
     return CarouselSlider(
       height: MediaQuery.of(context).size.height,
       aspectRatio: 16/9,
+      viewportFraction: .925,
       enlargeCenterPage: true,
       items: widget.recipe.steps.map((i) {
         return Builder(
@@ -89,7 +90,7 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
           shape: BoxShape.circle,
         ),
         child: IconButton(
-          icon: Icon(Icons.arrow_back,color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios,color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
             SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);

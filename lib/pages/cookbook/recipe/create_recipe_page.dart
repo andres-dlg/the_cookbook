@@ -12,8 +12,10 @@ import 'package:the_cookbook/storage/create_recipe_storage.dart';
 class CreateRecipe extends StatefulWidget {
 
   int cookbookId;
+  Function getRecipes;
+  Recipe recipe;
 
-  CreateRecipe(this.cookbookId);
+  CreateRecipe(this.cookbookId, this.getRecipes, {this.recipe});
 
   @override
   State<StatefulWidget> createState() {
@@ -36,8 +38,8 @@ class _CreateRecipeState extends State<CreateRecipe>{
   @override
   void initState() {
 
-    coverPage = CreateRecipeCover(this.callback ,key: PageStorageKey('CoverPage'), bucket: bucket);
-    stepsPage = CreateRecipeSteps(key: PageStorageKey('StepsPage'), bucket: bucket);
+    coverPage = CreateRecipeCover(this.callback ,key: PageStorageKey('CoverPage'), bucket: bucket, recipe: widget.recipe);
+    stepsPage = CreateRecipeSteps(key: PageStorageKey('StepsPage'), bucket: bucket, recipe: widget.recipe);
 
     _children = [coverPage,stepsPage];
 
@@ -122,27 +124,49 @@ class _CreateRecipeState extends State<CreateRecipe>{
 
   void _saveRecipe() async {
     var db = new DatabaseHelper();
-    //Prepare Recipe
-    var recipe = new Recipe(
+
+    //UPDATE
+    if(widget.recipe != null){
+      await db.updateRecipe(widget.recipe).then((recipeId){
+        _saveIngredients(db, CreateRecipeStorage.getIngredients(), widget.recipe.recipeId);
+        _saveSteps(db, CreateRecipeStorage.getSteps(), widget.recipe.recipeId);
+      });
+    }
+    //INSERT
+    else{
+
+      //Prepare Recipe
+      var recipe = new Recipe(
         widget.cookbookId,
         bucket.readState(context,identifier: "recipeName").toString().trim(),
         bucket.readState(context,identifier: "recipeSummary").toString().trim().isEmpty ? "" : bucket.readState(context,identifier: "recipeSummary").toString().trim(),
         _encodeBgPhoto(),
         bucket.readState(context,identifier: "selectedDifficulty").toString().trim(),
         int.parse(bucket.readState(context,identifier: "selectedMinutes").toString().trim()),
-    );
-    // Save Recipe and when it finished, save Steps
-    await db.saveRecipe(recipe).then((recipeId){
-      _saveIngredients(db, CreateRecipeStorage.getIngredients(), recipeId);
-      _saveSteps(db, CreateRecipeStorage.getSteps(), recipeId);
-    });
+      );
+      // Save Recipe and when it finished, save Steps
+      await db.saveRecipe(recipe).then((recipeId){
+        _saveIngredients(db, CreateRecipeStorage.getIngredients(), recipeId);
+        _saveSteps(db, CreateRecipeStorage.getSteps(), recipeId);
+      });
+
+    }
+
   }
 
   void _saveSteps(DatabaseHelper db, steps, int recipeId) async {
+
+    // IN CASE OF UPDATE
+    if(widget.recipe != null){
+      db.deleteStepsForRecipe(recipeId);
+    }
+
     for(RecipeStep.Step step in steps){
       step.recipeId = recipeId;
       db.saveStep(step);
     }
+
+    widget.getRecipes();
     Navigator.pop(context);
   }
 
@@ -157,10 +181,17 @@ class _CreateRecipeState extends State<CreateRecipe>{
   }
 
   void _saveIngredients(DatabaseHelper db, ingredients, int recipeId) {
+
+    // IN CASE OF UPDATE
+    if(widget.recipe != null){
+      db.deleteIngredientsForRecipe(widget.recipe.recipeId);
+    }
+
     for(TextFieldAndController ingredient in ingredients){
       Ingredient ing = new Ingredient(recipeId, ingredient.textField.controller.text);
       db.saveIngredient(ing);
     }
+
   }
 
 }

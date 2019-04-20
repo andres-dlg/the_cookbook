@@ -67,7 +67,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: Icon(Icons.arrow_back,),
+            icon: Icon(Icons.arrow_back_ios,),
             onPressed: () {
               Navigator.pop(context);
             },

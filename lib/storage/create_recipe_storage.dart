@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:the_cookbook/models/Ingredient.dart';
-import 'package:the_cookbook/models/step.dart' as RecipeStep;
+import 'package:the_cookbook/models/step.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_cover_page.dart';
 
 class CreateRecipeStorage {
 
-  static List<RecipeStep.Step> _steps;
+  static List<Step> _steps;
 
   static Map<int,File> _stepImages;
 
@@ -15,7 +15,7 @@ class CreateRecipeStorage {
     if(_steps != null && _steps.length > 0){
       return _steps;
     }else{
-      return new List<RecipeStep.Step>();
+      return new List<Step>();
     }
   }
 
@@ -31,11 +31,21 @@ class CreateRecipeStorage {
     _stepImages[itemIndex] = croppedFile;
   }
 
-  static void setStep(RecipeStep.Step newStep) {
+  static void setStep(Step newStep) {
     if(_steps == null){
-      _steps = new List<RecipeStep.Step>();
+      _steps = new List<Step>();
     }
-    _steps.add(newStep);
+    bool exists = false;
+    for(Step step in _steps){
+      if(step.title.trim() == newStep.title.trim()){
+        exists = true;
+        break;
+      }
+    }
+    if(!exists){
+      _steps.add(newStep);
+    }
+
   }
 
   static getStepImage(int itemIndex) {
@@ -45,7 +55,7 @@ class CreateRecipeStorage {
     return _stepImages[itemIndex];
   }
 
-  static RecipeStep.Step getStep(int itemIndex) {
+  static Step getStep(int itemIndex) {
     return _steps[itemIndex];
   }
 
@@ -61,7 +71,17 @@ class CreateRecipeStorage {
     if(_textFieldAndController == null){
       _textFieldAndController = new List<TextFieldAndController>();
     }
-    _textFieldAndController.add(newIngredient);
+    bool exists = false;
+    for(TextFieldAndController textFieldAndController in _textFieldAndController){
+      if(textFieldAndController.controller.text == newIngredient.controller.text){
+        exists = true;
+        break;
+      }
+    }
+    if(!exists){
+      _textFieldAndController.add(newIngredient);
+    }
+
   }
 
   static void deleteIngredient(TextFieldAndController tf) {

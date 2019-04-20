@@ -7,6 +7,7 @@ import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_page.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_detail_page.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class RecipeList extends StatefulWidget {
 
@@ -25,10 +26,14 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
   @override
   void initState() {
     recipePresenter = new RecipePresenter(this);
+    getRecipes();
+    super.initState();
+  }
+
+  void getRecipes(){
     recipePresenter.getRecipes(widget.cookbook.cookbookId).then((recipeList){
       widget.cookbook.recipes = recipeList;
     });
-    super.initState();
   }
 
   @override
@@ -47,7 +52,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
           onPressed: (){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CreateRecipe(widget.cookbook.cookbookId)),
+              MaterialPageRoute(builder: (context) => CreateRecipe(widget.cookbook.cookbookId, getRecipes)),
             );
           }
       ),
@@ -101,15 +106,10 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
                   ),
                ),
              ),
-            Padding(
-              padding: const EdgeInsets.only(left: 44.0),
-              child: new Center(
-                child: new Text(
-                  title,
-                  style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
-                ),
-              ),
-            ),
+             Text(
+               title,
+               style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
+             ),
           ],
         ),
       ),
@@ -141,18 +141,59 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
   }
 
   Widget _renderRecipeCard(BuildContext context, Recipe recipe) {
-    return Card(
-      child: InkWell(
-        onTap: () => { _navigateToRecipeDetail(context, recipe) },
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _renderRecipeThumbnail(recipe),
-            _renderRecipeDetails(context, recipe)
-          ],
+    return Slidable(
+      delegate: new SlidableDrawerDelegate(),
+      actionExtentRatio: 0.20,
+      child: Card(
+        child: InkWell(
+          onTap: () => { _navigateToRecipeDetail(context, recipe) },
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _renderRecipeThumbnail(recipe),
+              _renderRecipeDetails(context, recipe)
+            ],
+          ),
         ),
       ),
+      secondaryActions: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black45,
+            ),
+            child: new IconSlideAction(
+              caption: 'Edit',
+              color: Colors.transparent,
+              icon: Icons.edit,
+              onTap: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreateRecipe(widget.cookbook.cookbookId, getRecipes, recipe: recipe)),
+                )
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+                color: Colors.red,
+            ),
+            child: new IconSlideAction(
+              caption: 'Delete',
+              color: Colors.transparent,
+              icon: Icons.delete,
+              onTap: () => {
+                _showDialog(recipe)
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -260,6 +301,40 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
   @override
   void screenUpdate() {
     setState(() {});
+  }
+
+  _deleteRecipe(Recipe recipe) {
+    widget.cookbook.recipes.remove(recipe);
+    recipePresenter.delete(recipe);
+  }
+
+  void _showDialog(Recipe recipe) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Delete confirmation"),
+          content: new Text("Are sure do you want to delete this recipe?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Yes"),
+              onPressed: () {
+                _deleteRecipe(recipe);
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
 }

@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:the_cookbook/models/recipe.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
 import 'package:the_cookbook/utils/separator.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
 import 'package:the_cookbook/storage/create_recipe_storage.dart';
@@ -11,8 +16,9 @@ import 'package:the_cookbook/storage/create_recipe_storage.dart';
 class CreateRecipeSteps extends StatefulWidget{
 
   PageStorageBucket bucket;
+  Recipe recipe;
 
-  CreateRecipeSteps({Key key, this.bucket}) : super(key: key);
+  CreateRecipeSteps({Key key, this.bucket, this.recipe}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -21,13 +27,9 @@ class CreateRecipeSteps extends StatefulWidget{
 
 }
 
-class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
+class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepContract{
 
-  List<RecipeStep.Step> _steps;
-
-  Map<int,File> _stepImages;
-
-  //var _image;
+  StepPresenter stepPresenter;
 
   var _currentPage = 0;
 
@@ -39,9 +41,9 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
     _pageController = PageController(viewportFraction: 0.9);
 
-    _steps = CreateRecipeStorage.getSteps();
-
-    _stepImages = CreateRecipeStorage.getStepImages();
+    if(widget.recipe != null){
+      _setRecipeDetails();
+    }
 
     super.initState();
   }
@@ -73,37 +75,69 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: Padding(
-        padding:CreateRecipeStorage.getSteps().length > 0 ? const EdgeInsets.only(top: 128.0, left: 320) : const EdgeInsets.all(0),
-        child: FloatingActionButton(
-          child: Icon(Icons.add),
-          backgroundColor: Colors.pinkAccent,
-          onPressed: () {_createNewStep();},
-        ),
-      ),
-      floatingActionButtonLocation: CreateRecipeStorage.getSteps().length > 0 ? FloatingActionButtonLocation.startTop : FloatingActionButtonLocation.endFloat,
-      body: Container(
-          key: PageStorageKey('scrollStepsPosition'),
-          decoration: new BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
-              gradient: new LinearGradient(
-                  colors: [Color.fromRGBO(179,229,252, 1), Colors.blueAccent],
-                  begin: const FractionalOffset(0.0, 0.0),
-                  end: const FractionalOffset(0.5, 0.0),
-                  stops: [0.0, 1.0],
-                  tileMode: TileMode.clamp
-              ),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black,
-                    blurRadius: 10.0
-                )
-              ]
+    return WillPopScope(
+      child: Scaffold(
+        floatingActionButton: Padding(
+          padding:CreateRecipeStorage.getSteps().length > 0 ? const EdgeInsets.only(top: 128.0, left: 320) : const EdgeInsets.all(0),
+          child: FloatingActionButton(
+            child: Icon(Icons.add),
+            backgroundColor: Colors.pinkAccent,
+            onPressed: () {_createNewStep();},
           ),
+        ),
+        floatingActionButtonLocation: CreateRecipeStorage.getSteps().length > 0 ? FloatingActionButtonLocation.startTop : FloatingActionButtonLocation.endFloat,
+        body: Stack(
+          children: <Widget>[
+            _renderBody(),
+            _renderBackButton(context),
+          ],
+        )
+      ),
+      onWillPop: () {
+        _showCancelDialog(context);
+      },
+    );
+  }
+
+  Widget _renderBody(){
+    return Container(
+        key: PageStorageKey('scrollStepsPosition'),
+        decoration: new BoxDecoration(
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
+            gradient: new LinearGradient(
+                colors: [Color.fromRGBO(179,229,252, 1), Colors.blueAccent],
+                begin: const FractionalOffset(0.0, 0.0),
+                end: const FractionalOffset(0.5, 0.0),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp
+            ),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 10.0
+              )
+            ]
+        ),
         height: MediaQuery.of(context).size.height,
         child: _renderCarousel(context)
-      )
+    );
+  }
+
+  Widget _renderBackButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 32.0, left: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(0, 0, 0, 0.3),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          icon: Icon(Icons.arrow_back_ios,color: Colors.white),
+          onPressed: () {
+            _showCancelDialog(context);
+          },
+        ),
+      ),
     );
   }
 
@@ -258,7 +292,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
 
     var nextStep = CreateRecipeStorage.getSteps().length + 1;
 
-    RecipeStep.Step newStep = new RecipeStep.Step(0, "Step $nextStep", "", "DEFAULT", stepId: 1);
+    RecipeStep.Step newStep = new RecipeStep.Step(0, "Step $nextStep", "", "DEFAULT");
 
     CreateRecipeStorage.setStep(newStep);
 
@@ -269,6 +303,59 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>{
           curve: Curves.linear);
     });
 
+  }
+
+  void _setRecipeDetails() {
+    stepPresenter = new StepPresenter(this);
+    stepPresenter.getSteps(widget.recipe.cookbookId, widget.recipe.recipeId).then((stepsList){
+      widget.recipe.steps = stepsList;
+      for(int i = 0; i<stepsList.length; i++){
+        CreateRecipeStorage.setStep(stepsList[i]);
+        Uint8List _bytesImage;
+        _bytesImage = Base64Decoder().convert(stepsList[i].photoBase64Encoded);
+        CreateRecipeStorage.setStepImage(i, File.fromRawPath(_bytesImage));
+      }
+      setState(() {});
+    });
+  }
+
+  void _showCancelDialog(BuildContext context) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Cancel creation"),
+          content: new Text("This recipe is not saved. Are you sure do you want to go back?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Yes"),
+              onPressed: () {
+                Navigator.pop(context);
+                _closePage();
+                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+              },
+            ),
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void screenUpdate() {
+    setState(() {});
+  }
+
+  void _closePage() {
+    Navigator.pop(context);
   }
 
 }

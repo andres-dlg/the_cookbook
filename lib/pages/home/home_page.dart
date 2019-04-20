@@ -134,8 +134,11 @@ class _HomeState extends State<Home> implements CookbookContract {
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.library_books),
+              color: _currentIndex == 0 ? Colors.blueAccent :
+                                          Colors.black,
               disabledColor: _currentIndex == 0 ? Colors.blueAccent :
-                                                  Colors.black, onPressed: () {},
+                                                  Colors.black,
+              onPressed: () {},
             ),
             Text(
               "Cookbooks",
@@ -169,6 +172,8 @@ class _HomeState extends State<Home> implements CookbookContract {
             ),
             IconButton(
               icon: Icon(Icons.star),
+              color: _currentIndex == 1 ? Colors.blueAccent :
+                                          Colors.black,
               disabledColor: _currentIndex == 1 ? Colors.blueAccent : Colors.black, onPressed: () {},
             ),
           ],
@@ -432,13 +437,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
       await db.saveCookbook(cookbook).whenComplete((){
         Navigator.of(context).pop();
       });
-      /*if(save){
-      Cookbook cookbook = new Cookbook();
-      cookbook.name = _textEditingController.text;
-      cookbook.coverBase64Encoded = _image.path;
-      cookbook.recipes = [];
-      CookbookDBHandler.saveCookbook(cookbook);
-    }*/
+
     }
   }
 

@@ -32,6 +32,9 @@ class DatabaseHelper  {
 
   Future _onCreate(Database db, int version) async {
     await db.execute(
+      "PRAGMA foreign_keys=ON"
+    );
+    await db.execute(
       "CREATE TABLE Cookbooks ("
         "cookbookId INTEGER PRIMARY KEY,"
         "name TEXT,"
@@ -47,7 +50,9 @@ class DatabaseHelper  {
         "summary TEXT,"
         "durationInMinutes INTEGER,"
         "level TEXT,"
-        "FOREIGN KEY(cookbookId) REFERENCES Cookbooks(cookbookId)"
+        "CONSTRAINT cookbookId "
+          "FOREIGN KEY (cookbookId) REFERENCES Cookbooks(cookbookId) "
+          "ON DELETE CASCADE"
       ");"
     );
     await db.execute(
@@ -55,7 +60,9 @@ class DatabaseHelper  {
         "ingredientId INTEGER PRIMARY KEY,"
         "recipeId INTEGER,"
         "description TEXT,"
-        "FOREIGN KEY(recipeId) REFERENCES Recipes(recipeId)"
+        "CONSTRAINT recipeId "
+          "FOREIGN KEY (recipeId) REFERENCES Recipes(recipeId) "
+          "ON DELETE CASCADE"
       ");"
     );
     await db.execute(
@@ -65,7 +72,9 @@ class DatabaseHelper  {
         "title TEXT,"
         "photoBase64Encoded TEXT,"
         "description TEXT,"
-        "FOREIGN KEY(recipeId) REFERENCES Recipes(recipeId)"
+        "CONSTRAINT recipeId "
+          "FOREIGN KEY (recipeId) REFERENCES Recipes(recipeId) "
+          "ON DELETE CASCADE"
       ");"
     );
   }
@@ -100,7 +109,7 @@ class DatabaseHelper  {
   Future<bool> updateCookbook(Cookbook cookbook) async {
     var theCookbookDb = await db;
     int res =   await theCookbookDb.update("Cookbooks", cookbook.toMap(),
-        where: "id = ?", whereArgs: <int>[cookbook.cookbookId]);
+        where: "cookbookId = ?", whereArgs: <int>[cookbook.cookbookId]);
     return res > 0 ? true : false;
   }
 
@@ -228,9 +237,21 @@ class DatabaseHelper  {
 
   Future<bool> updateIngredient(Ingredient ingredient) async {
     var theCookbookDb = await db;
-    int res =   await theCookbookDb.update("Ingredient", ingredient.toMap(),
+    int res =   await theCookbookDb.update("Ingredients", ingredient.toMap(),
         where: "ingredientId = ?", whereArgs: <int>[ingredient.ingredientId]);
     return res > 0 ? true : false;
+  }
+
+  Future<int> deleteIngredientsForRecipe(int recipeId) async {
+    var theCookbookDb = await db;
+    int res = await theCookbookDb.rawDelete('DELETE FROM Ingredients WHERE recipeId = ?', [recipeId]);
+    return res;
+  }
+
+  Future<int> deleteStepsForRecipe(int recipeId) async {
+    var theCookbookDb = await db;
+    int res = await theCookbookDb.rawUpdate('DELETE FROM Steps WHERE recipeId = ?', [recipeId]);
+    return res;
   }
 
 }

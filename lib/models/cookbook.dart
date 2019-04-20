@@ -20,6 +20,9 @@ class Cookbook {
 
   String get coverBase64Encoded => _coverBase64Encoded;
 
+  set name(value) => _name = value;
+  set coverBase64Encoded(value) => _coverBase64Encoded = value;
+
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
     map["name"] = _name;

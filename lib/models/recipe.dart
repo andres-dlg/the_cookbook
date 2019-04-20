@@ -25,6 +25,12 @@ class Recipe {
   );
 
   set ingredients(value) => _ingredients = value;
+  set coverBase64Encoded(value) => _coverBase64Encoded = value;
+  set name(value) => _name = value;
+  set summary(value) => _summary = value;
+  set level(value) => _level = value;
+  set durationInMinutes(value) => _durationInMinutes = value;
+
 
   int get cookbookId => _cookbookId;
   String get name => _name;

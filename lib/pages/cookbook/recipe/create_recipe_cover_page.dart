@@ -1,9 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:the_cookbook/models/Ingredient.dart';
+import 'package:the_cookbook/models/recipe.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
+import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
 import 'package:the_cookbook/storage/create_recipe_storage.dart';
 import 'package:the_cookbook/utils/separator.dart';
 
@@ -11,8 +18,11 @@ import 'package:the_cookbook/utils/separator.dart';
 class CreateRecipeCover extends StatefulWidget{
 
   Function callback;
+  Recipe recipe;
+  Uint8List _bytesImage;
+  var tempBgPhoto;
 
-  CreateRecipeCover(this.callback, {Key key, PageStorageBucket bucket}) : super(key: key);
+  CreateRecipeCover(this.callback, {Key key, PageStorageBucket bucket, this.recipe}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -21,13 +31,14 @@ class CreateRecipeCover extends StatefulWidget{
 
 }
 
-class _CreateRecipeCoverState extends State<CreateRecipeCover> {
+class _CreateRecipeCoverState extends State<CreateRecipeCover> implements RecipeContract, StepContract{
 
   var _selectedDiffulty;
 
-  var _image;
+  var newPhoto = false;
 
-  //List<TextFieldAndController> _textFieldsAndController;
+  RecipePresenter recipePresenter;
+  StepPresenter stepPresenter;
 
   //TEXT CONTROLLERS
   final _textRecipeNameController = TextEditingController();
@@ -35,40 +46,69 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
   final _textSummaryController = TextEditingController();
 
   //SCROLL CONTROLLER
-  //final _scrollController = ScrollController();
 
   @override
   void initState(){
 
-    //myFocusNode = FocusNode();
+    recipePresenter = new RecipePresenter(this);
+    stepPresenter = new StepPresenter(null);
+
     //Fill form fields if another tab was selected and then returned to this.
+    if(widget.recipe == null){
 
-    var difficulty = PageStorage.of(context).readState(context, identifier: "selectedDifficulty");
-    if(difficulty.toString().trim().isNotEmpty){
-      _selectedDiffulty = difficulty;
+      var difficulty = PageStorage.of(context).readState(context, identifier: "selectedDifficulty");
+      if(difficulty.toString().trim().isNotEmpty){
+        _selectedDiffulty = difficulty;
+      }
+
+      var minutes = PageStorage.of(context).readState(context, identifier: "selectedMinutes");
+      if(minutes.toString().trim().isNotEmpty){
+        _textMinutesController.text = minutes;
+      }
+
+      var recipeName = PageStorage.of(context).readState(context, identifier: "recipeName");
+      if(recipeName.toString().trim().isNotEmpty){
+        _textRecipeNameController.text = recipeName;
+      }
+
+      var recipeSummary = PageStorage.of(context).readState(context, identifier: "recipeSummary");
+      if(recipeSummary.toString().trim().isNotEmpty){
+        _textSummaryController.text = recipeSummary;
+      }
+
+    }else{
+
+      _selectedDiffulty = widget.recipe.level;
+
+      _textMinutesController.text = widget.recipe.durationInMinutes.toString();
+
+      _textRecipeNameController.text = widget.recipe.name;
+      PageStorage.of(context).writeState(context, widget.recipe.name.trim(), identifier: "recipeName");
+
+      _textSummaryController.text = widget.recipe.summary;
+
+      recipePresenter.getIngredients(widget.recipe.cookbookId, widget.recipe.recipeId).then((ingredientList){
+
+        widget.recipe.ingredients = ingredientList;
+
+        for(Ingredient ingredient in ingredientList){
+          _addTextField(text: ingredient.description);
+          this.widget.callback();
+        }
+
+      });
+
+      stepPresenter.getSteps(widget.recipe.cookbookId, widget.recipe.recipeId).then((stepsList){
+        widget.recipe.steps = stepsList;
+        for(int i = 0; i<stepsList.length; i++){
+          CreateRecipeStorage.setStep(stepsList[i]);
+          Uint8List _bytesImage;
+          _bytesImage = Base64Decoder().convert(stepsList[i].photoBase64Encoded);
+          CreateRecipeStorage.setStepImage(i, File.fromRawPath(_bytesImage));
+        }
+      });
+
     }
-
-    var minutes = PageStorage.of(context).readState(context, identifier: "selectedMinutes");
-    if(minutes.toString().trim().isNotEmpty){
-      _textMinutesController.text = minutes;
-    }
-
-    var recipeName = PageStorage.of(context).readState(context, identifier: "recipeName");
-    if(recipeName.toString().trim().isNotEmpty){
-      _textRecipeNameController.text = recipeName;
-    }
-
-    var recipeSummary = PageStorage.of(context).readState(context, identifier: "recipeSummary");
-    if(recipeSummary.toString().trim().isNotEmpty){
-      _textSummaryController.text = recipeSummary;
-    }
-
-    var bgPhoto = PageStorage.of(context).readState(context, identifier: "bgPhoto");
-    if(bgPhoto != null){
-      _image = bgPhoto;
-    }
-
-
 
     super.initState();
 
@@ -89,9 +129,11 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
     );
 
     setState(() {
-      _image = croppedFile;
-      print("Cropped file: "+ _image.path);
-      PageStorage.of(context).writeState(context, _image, identifier: "bgPhoto");
+      newPhoto = true;
+      List<int> imageBytes = croppedFile.readAsBytesSync();
+      widget.recipe.coverBase64Encoded = base64Encode(imageBytes);
+      widget.tempBgPhoto = widget.recipe.coverBase64Encoded;
+      PageStorage.of(context).writeState(context, widget.recipe.coverBase64Encoded, identifier: "bgPhoto");
     });
 
   }
@@ -118,14 +160,19 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
 
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      //controller: _scrollController,
-      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-        return <Widget>[
-          _renderAppBar(context)
-        ];
+    return WillPopScope(
+      child: NestedScrollView(
+        //controller: _scrollController,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            _renderAppBar(context)
+          ];
+        },
+        body: _renderBody(context),
+      ),
+      onWillPop: () {
+        _showCancelDialog(context);
       },
-      body: _renderBody(context),
     );
   }
 
@@ -143,7 +190,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
           child: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
-              Navigator.pop(context);
+              _showCancelDialog(context);
             },
           ),
         ),
@@ -187,19 +234,31 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
   }
 
   Widget _renderBackgroundImage() {
-    return Container(
-        width: MediaQuery.of(context).size.width,
-        child: _image == null ?
-        Image.asset(
-          "assets/images/food_pattern.png",
-          fit: BoxFit.cover,
-        ) :
-        Image.file(
-          _image,
-          fit: BoxFit.cover,
-          gaplessPlayback: false,
-        )
-    );
+    var thumb;
+    if(widget.recipe == null || widget.recipe.coverBase64Encoded == "DEFAULT"){
+      thumb = Container(
+          width: MediaQuery.of(context).size.width,
+          child: Image.asset(
+            "assets/images/food_pattern.png",
+            fit: BoxFit.cover,
+          )
+      );
+    }else{
+      if(widget.recipe.coverBase64Encoded != widget.tempBgPhoto || newPhoto){
+        newPhoto = false;
+        widget.tempBgPhoto = widget.recipe.coverBase64Encoded;
+        widget._bytesImage = Base64Decoder().convert(widget.recipe.coverBase64Encoded);
+      }
+      thumb = Container(
+          width: MediaQuery.of(context).size.width,
+          child: Image.memory(
+            widget._bytesImage,
+            fit: BoxFit.cover,
+          )
+      );
+
+    }
+    return thumb;
   }
 
   Widget _renderBackgroundOpacity() {
@@ -276,6 +335,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
         onChanged: (value){
           setState(() {
             PageStorage.of(context).writeState(context, _textRecipeNameController.text, identifier: "recipeName");
+            widget.recipe.name = value;
             this.widget.callback();
           });
         },
@@ -318,6 +378,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
               setState(() {
                 PageStorage.of(context).writeState(context, newSelectedDifficulty, identifier: "selectedDifficulty");
                 this._selectedDiffulty = newSelectedDifficulty;
+                widget.recipe.level = newSelectedDifficulty;
               });
             },
             items: this._dropDownMenuItems,
@@ -373,6 +434,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
               onChanged: (value){
                 setState(() {
                   PageStorage.of(context).writeState(context, value, identifier: "selectedMinutes");
+                  widget.recipe.durationInMinutes = int.parse(value);
                 });
               },
             ),
@@ -409,6 +471,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
                 onChanged: (value){
                   setState(() {
                     PageStorage.of(context).writeState(context, value, identifier: "recipeSummary");
+                    widget.recipe.summary = value;
                   });
                 },
               )
@@ -473,15 +536,20 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
     );
   }
 
-  void _addTextField() {
+  void _addTextField({String text}) {
     var rnd = new Random();
     var keytext = rnd.nextInt(999999999);
-    TextEditingController controller = new TextEditingController();
+    TextEditingController controller;
+    if(text==null){
+      controller = new TextEditingController();
+    }else{
+      controller = new TextEditingController(text: text);
+    }
     TextFormField textField = new TextFormField(
       key: ValueKey(keytext),
       controller: controller,
       maxLength: 40,
-      textInputAction: TextInputAction.send,
+      textInputAction: TextInputAction.done,
       decoration: InputDecoration(
         counterText: "",
         hintText: "Type here",
@@ -513,6 +581,45 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> {
         break;
       }
     }
+  }
+
+  @override
+  void screenUpdate() {
+    setState(() {});
+  }
+
+  void _showCancelDialog(BuildContext context) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Cancel creation"),
+          content: new Text("This recipe is not saved. Are you sure do you want to go back?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Yes"),
+              onPressed: () {
+                Navigator.pop(context);
+                _closePage();
+                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+              },
+            ),
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _closePage() {
+    Navigator.pop(context);
   }
 
 }
