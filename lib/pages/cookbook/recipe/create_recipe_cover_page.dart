@@ -22,7 +22,9 @@ class CreateRecipeCover extends StatefulWidget{
   Uint8List _bytesImage;
   var tempBgPhoto;
 
-  CreateRecipeCover(this.callback, {Key key, PageStorageBucket bucket, this.recipe}) : super(key: key);
+  bool isNewRecipe;
+
+  CreateRecipeCover(this.callback, {Key key, PageStorageBucket bucket, this.recipe, this.isNewRecipe}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -54,7 +56,9 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
     stepPresenter = new StepPresenter(null);
 
     //Fill form fields if another tab was selected and then returned to this.
-    if(widget.recipe == null){
+    if(widget.recipe == null || widget.isNewRecipe){
+
+      widget.recipe = new Recipe(0, "", "", "DEFAULT", "", 0);
 
       var difficulty = PageStorage.of(context).readState(context, identifier: "selectedDifficulty");
       if(difficulty.toString().trim().isNotEmpty){

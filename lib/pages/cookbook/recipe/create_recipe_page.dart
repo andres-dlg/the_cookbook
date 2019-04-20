@@ -15,6 +15,7 @@ class CreateRecipe extends StatefulWidget {
   int cookbookId;
   Function getRecipes;
   Recipe recipe;
+  bool isNewRecipe = false;
 
   CreateRecipe(this.cookbookId, this.getRecipes, {this.recipe});
 
@@ -39,7 +40,11 @@ class _CreateRecipeState extends State<CreateRecipe>{
   @override
   void initState() {
 
-    coverPage = CreateRecipeCover(this.callback ,key: PageStorageKey('CoverPage'), bucket: bucket, recipe: widget.recipe);
+    if(widget.recipe == null){
+      widget.isNewRecipe = true;
+    }
+
+    coverPage = CreateRecipeCover(this.callback ,key: PageStorageKey('CoverPage'), bucket: bucket, recipe: widget.recipe, isNewRecipe: widget.isNewRecipe);
     stepsPage = CreateRecipeSteps(key: PageStorageKey('StepsPage'), bucket: bucket, recipe: widget.recipe);
 
     _children = [coverPage,stepsPage];
@@ -185,8 +190,8 @@ class _CreateRecipeState extends State<CreateRecipe>{
     String base64Image = "DEFAULT";
     var _image = bucket.readState(context,identifier: "bgPhoto");
     if(bucket.readState(context,identifier: "bgPhoto") != null){
-      List<int> imageBytes = _image.readAsBytesSync();
-      base64Image = base64Encode(imageBytes);
+      //List<int> imageBytes = _image.readAsBytesSync();
+      base64Image = bucket.readState(context,identifier: "bgPhoto");//base64Encode(imageBytes);
     }
     return base64Image;
   }

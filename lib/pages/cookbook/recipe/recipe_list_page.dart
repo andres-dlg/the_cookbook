@@ -203,12 +203,11 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
         width: 128.0,
         height: 128.0,
         child: Hero(
-          tag: "default",
           child: Image.asset(
             "assets/images/food_pattern.png",
             fit: BoxFit.cover,
-          ),
-        )
+          ), tag: "default-${recipe.recipeId}",
+        ),
       );
     }else{
       Uint8List _bytesImage;
@@ -217,12 +216,11 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
         width: 128.0,
         height: 128.0,
         child: Hero(
-          tag: "photo",
           child: Image.memory(
             _bytesImage,
             fit: BoxFit.cover,
-          ),
-        )
+          ), tag: "photo-${recipe.recipeId}",
+        ),
       );
     }
     return thumb;

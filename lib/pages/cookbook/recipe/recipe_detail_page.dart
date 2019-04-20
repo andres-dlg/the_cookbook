@@ -94,7 +94,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
       thumb = Container(
           width: MediaQuery.of(context).size.width,
           child: Hero(
-            tag: "default",
+            tag: "default-${widget.recipe.recipeId}",
             child: Image.asset(
               "assets/images/food_pattern.png",
               fit: BoxFit.cover,
@@ -105,7 +105,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
       thumb = Container(
           width: MediaQuery.of(context).size.width,
           child: Hero(
-            tag: "photo",
+            tag: "photo-${widget.recipe.recipeId}",
             child: Image.memory(
               widget.bytesImage,
               fit: BoxFit.cover,
@@ -114,20 +114,6 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
       );
     }
     return thumb;
-
-    /*return Container(
-        width: MediaQuery.of(context).size.width,
-        child: _image == null ?
-        Image.asset(
-          "assets/images/food_pattern.png",
-          fit: BoxFit.cover,
-        ) :
-        Image.file(
-          _image,
-          fit: BoxFit.cover,
-          gaplessPlayback: false,
-        )
-    );*/
   }
 
   Widget _renderBody(BuildContext context) {
@@ -215,13 +201,22 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
                 ),
               ),
               Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
-              Text(
-                  widget.recipe.summary,
-                  style: TextStyle(
-                      fontSize: 18.0,
-                      fontFamily: 'Muli'
-                  )
-              )
+              widget.recipe.summary != "null" ?
+                Text(
+                    widget.recipe.summary,
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        fontFamily: 'Muli'
+                    )
+                ) :
+                Center(child: Text(
+                    "No summary",
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        fontFamily: 'Muli'
+                    )
+                )
+              ),
             ],
           ),
         ),
