@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:the_cookbook/database/database_helper.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
@@ -60,49 +61,59 @@ class _CreateRecipeState extends State<CreateRecipe>{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: bucket.readState(context,identifier: "recipeName") != null &&
-          !(bucket.readState(context,identifier: "recipeName").toString().trim().isEmpty) ?
-      FloatingActionButton(
-        onPressed: () {
-            if(_validateFields()){
-              _saveRecipe();
-            }else{
-              print("Complete all required fields");
-            }
-          },
-        child: Icon(Icons.save)
-      ) :
-      null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      body: PageStorage(
-        child: _children[_currentIndex],
-        bucket: bucket,
-        key: mykey,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black,
-              blurRadius: 10.0
-            )
-          ]
-        ),
-        child: BottomNavigationBar(
-          onTap: onTabTapped,
-          currentIndex: _currentIndex,
-          items: [
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.restaurant),
-              title: new Text('Cover'),
+    return WillPopScope(
+      onWillPop: (){
+        _showCancelDialog(context);
+      },
+      child: Scaffold(
+        floatingActionButton: bucket.readState(context,identifier: "recipeName") != null &&
+            !(bucket.readState(context,identifier: "recipeName").toString().trim().isEmpty) ?
+        FloatingActionButton(
+          onPressed: () {
+              if(_validateFields()){
+                _saveRecipe();
+              }else{
+                print("Complete all required fields");
+              }
+            },
+          child: Icon(Icons.save)
+        ) :
+        null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+        body: Stack(
+          children: <Widget>[
+            PageStorage(
+              child: _children[_currentIndex],
+              bucket: bucket,
+              key: mykey,
             ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.format_list_numbered),
-              title: new Text('Steps'),
-            ),
+            _renderBackButton(context),
           ],
+        ),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black,
+                blurRadius: 10.0
+              )
+            ]
+          ),
+          child: BottomNavigationBar(
+            onTap: onTabTapped,
+            currentIndex: _currentIndex,
+            items: [
+              BottomNavigationBarItem(
+                icon: new Icon(Icons.restaurant),
+                title: new Text('Cover'),
+              ),
+              BottomNavigationBarItem(
+                icon: new Icon(Icons.format_list_numbered),
+                title: new Text('Steps'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -192,6 +203,57 @@ class _CreateRecipeState extends State<CreateRecipe>{
       db.saveIngredient(ing);
     }
 
+  }
+
+  _renderBackButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 32.0, left: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(0, 0, 0, 0.3),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          icon: Icon(Icons.arrow_back_ios,color: Colors.white),
+          onPressed: () {
+            _showCancelDialog(context);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showCancelDialog(BuildContext context) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Cancel creation"),
+          content: new Text("This recipe is not saved. Are you sure do you want to go back?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Yes"),
+              onPressed: () {
+                Navigator.pop(context);
+                _closePage();
+              },
+            ),
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _closePage() {
+    Navigator.pop(context);
   }
 
 }

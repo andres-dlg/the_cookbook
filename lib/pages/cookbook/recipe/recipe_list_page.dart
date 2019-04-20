@@ -113,7 +113,6 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
           ],
         ),
       ),
-
     );
     /*return AppBar(
       elevation: 0.0,
@@ -203,9 +202,12 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
       thumb = Container(
         width: 128.0,
         height: 128.0,
-        child: Image.asset(
-          "assets/images/food_pattern.png",
-          fit: BoxFit.cover,
+        child: Hero(
+          tag: "default",
+          child: Image.asset(
+            "assets/images/food_pattern.png",
+            fit: BoxFit.cover,
+          ),
         )
       );
     }else{
@@ -214,9 +216,12 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
       thumb = Container(
         width: 128.0,
         height: 128.0,
-        child: Image.memory(
-          _bytesImage,
-          fit: BoxFit.cover,
+        child: Hero(
+          tag: "photo",
+          child: Image.memory(
+            _bytesImage,
+            fit: BoxFit.cover,
+          ),
         )
       );
     }
@@ -292,9 +297,15 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
   }
 
   _navigateToRecipeDetail(BuildContext context, Recipe recipe) {
+
+    Uint8List _bytesImage;
+    if(recipe.coverBase64Encoded != "DEFAULT"){
+      _bytesImage = Base64Decoder().convert(recipe.coverBase64Encoded);
+    }
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => RecipeDetail(recipe: recipe)),
+      MaterialPageRoute(builder: (context) => RecipeDetail(recipe: recipe, bytesImage: _bytesImage,)),
     );
   }
 

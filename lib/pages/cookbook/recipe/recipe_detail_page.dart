@@ -15,8 +15,9 @@ class RecipeDetail extends StatefulWidget {
   static double height = 300.0;
 
   Recipe recipe;
+  Uint8List bytesImage;
 
-  RecipeDetail({this.recipe});
+  RecipeDetail({this.recipe, this.bytesImage});
 
   @override
   _RecipeDetailState createState() => _RecipeDetailState();
@@ -92,19 +93,23 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
     if(widget.recipe.coverBase64Encoded == "DEFAULT"){
       thumb = Container(
           width: MediaQuery.of(context).size.width,
-          child: Image.asset(
-            "assets/images/food_pattern.png",
-            fit: BoxFit.cover,
+          child: Hero(
+            tag: "default",
+            child: Image.asset(
+              "assets/images/food_pattern.png",
+              fit: BoxFit.cover,
+            ),
           )
       );
     }else{
-      Uint8List _bytesImage;
-      _bytesImage = Base64Decoder().convert(widget.recipe.coverBase64Encoded);
       thumb = Container(
           width: MediaQuery.of(context).size.width,
-          child: Image.memory(
-            _bytesImage,
-            fit: BoxFit.cover,
+          child: Hero(
+            tag: "photo",
+            child: Image.memory(
+              widget.bytesImage,
+              fit: BoxFit.cover,
+            ),
           )
       );
     }

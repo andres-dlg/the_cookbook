@@ -160,8 +160,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      child: NestedScrollView(
+    return NestedScrollView(
         //controller: _scrollController,
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
@@ -169,32 +168,14 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
           ];
         },
         body: _renderBody(context),
-      ),
-      onWillPop: () {
-        _showCancelDialog(context);
-      },
-    );
+      );
   }
 
   SliverAppBar _renderAppBar(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 248.0,
       floating: false,
-      leading: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Color.fromRGBO(0, 0, 0, 0.3),
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            onPressed: () {
-              _showCancelDialog(context);
-            },
-          ),
-        ),
-      ),
+      leading: Icon(Icons.arrow_back_ios, color: Colors.transparent,),
       automaticallyImplyLeading: true,
       backgroundColor: Colors.transparent,
       elevation: 0.0,
@@ -586,40 +567,6 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
   @override
   void screenUpdate() {
     setState(() {});
-  }
-
-  void _showCancelDialog(BuildContext context) {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Cancel creation"),
-          content: new Text("This recipe is not saved. Are you sure do you want to go back?"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Yes"),
-              onPressed: () {
-                Navigator.pop(context);
-                _closePage();
-                SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-              },
-            ),
-            new FlatButton(
-              child: new Text("No"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _closePage() {
-    Navigator.pop(context);
   }
 
 }

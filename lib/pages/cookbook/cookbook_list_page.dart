@@ -45,7 +45,7 @@ class _CookbookListState extends State<CookbookList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _gridViewItemBuilder(context)
+      body: _gridViewItemBuilder(context),
     );
   }
 
