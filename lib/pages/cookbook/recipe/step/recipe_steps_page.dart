@@ -173,7 +173,10 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
       Uint8List _bytesImage;
       _bytesImage = Base64Decoder().convert(step.photoBase64Encoded);
       thumb = SizedBox.expand(
-          child: Image.memory(_bytesImage)
+          child: Image.memory(
+            _bytesImage,
+            fit: BoxFit.cover,
+          )
       );
     }
     return thumb;

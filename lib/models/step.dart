@@ -15,6 +15,7 @@ class Step {
 
   set description(value) => this._description = value;
   set recipeId(value) => this._recipeId = value;
+  set photoBase64Encoded(value) => this._photoBase64Encoded = value;
 
   Step.map(dynamic obj){
     this._recipeId = obj["recipeId"];

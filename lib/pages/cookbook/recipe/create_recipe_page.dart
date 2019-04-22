@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,6 +44,8 @@ class _CreateRecipeState extends State<CreateRecipe>{
     if(widget.recipe == null){
       widget.isNewRecipe = true;
     }
+
+    CreateRecipeStorage.initialize();
 
     coverPage = CreateRecipeCover(this.callback ,key: PageStorageKey('CoverPage'), bucket: bucket, recipe: widget.recipe, isNewRecipe: widget.isNewRecipe);
     stepsPage = CreateRecipeSteps(key: PageStorageKey('StepsPage'), bucket: bucket, recipe: widget.recipe);
@@ -145,7 +148,7 @@ class _CreateRecipeState extends State<CreateRecipe>{
     if(widget.recipe != null){
       await db.updateRecipe(widget.recipe).then((recipeId){
         _saveIngredients(db, CreateRecipeStorage.getIngredients(), widget.recipe.recipeId);
-        _saveSteps(db, CreateRecipeStorage.getSteps(), widget.recipe.recipeId);
+        _saveSteps(db, CreateRecipeStorage.getSteps(), CreateRecipeStorage.getStepImages(), widget.recipe.recipeId);
       });
     }
     //INSERT
@@ -164,24 +167,36 @@ class _CreateRecipeState extends State<CreateRecipe>{
       // Save Recipe and when it finished, save Steps
       await db.saveRecipe(recipe).then((recipeId){
         _saveIngredients(db, CreateRecipeStorage.getIngredients(), recipeId);
-        _saveSteps(db, CreateRecipeStorage.getSteps(), recipeId);
+        _saveSteps(db, CreateRecipeStorage.getSteps(), CreateRecipeStorage.getStepImages() , recipeId);
       });
 
     }
 
   }
 
-  void _saveSteps(DatabaseHelper db, steps, int recipeId) async {
+  void _saveSteps(DatabaseHelper db, List<RecipeStep.Step> steps, Map<int,File> stepImages, int recipeId) async {
 
+    var ss = stepImages;
     // IN CASE OF UPDATE
     if(widget.recipe != null){
       db.deleteStepsForRecipe(recipeId);
     }
+    String base64Image;
 
-    for(RecipeStep.Step step in steps){
-      step.recipeId = recipeId;
-      db.saveStep(step);
+    for(int i = 0; i < steps.length; i++){
+
+      base64Image = "DEFAULT";
+
+      if(stepImages[i] != null){
+        List<int> imageBytes = stepImages[i].readAsBytesSync();
+        base64Image = base64Encode(imageBytes);
+      }
+
+      steps[i].photoBase64Encoded = base64Image;
+      steps[i].recipeId = recipeId;
+      db.saveStep(steps[i]);
     }
+
 
     widget.getRecipes();
     Navigator.pop(context);
@@ -190,9 +205,8 @@ class _CreateRecipeState extends State<CreateRecipe>{
   String _encodeBgPhoto() {
     String base64Image = "DEFAULT";
     var _image = bucket.readState(context,identifier: "bgPhoto");
-    if(bucket.readState(context,identifier: "bgPhoto") != null){
-      //List<int> imageBytes = _image.readAsBytesSync();
-      base64Image = bucket.readState(context,identifier: "bgPhoto");//base64Encode(imageBytes);
+    if(_image != null){
+      base64Image = _image;//base64Encode(imageBytes);
     }
     return base64Image;
   }
@@ -237,7 +251,7 @@ class _CreateRecipeState extends State<CreateRecipe>{
         // return object of type Dialog
         return AlertDialog(
           title: new Text("Cancel creation"),
-          content: new Text("This recipe is not saved. Are you sure do you want to go back?"),
+          content: new Text("This recipe is not saved. Are you sure you want to go back?"),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Yes"),

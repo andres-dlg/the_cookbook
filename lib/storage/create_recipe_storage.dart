@@ -11,6 +11,11 @@ class CreateRecipeStorage {
 
   static List<TextFieldAndController> _textFieldAndController;
 
+  static initialize(){
+    _steps = new List<Step>();
+    _stepImages = new Map<int,File>();
+  }
+
   static getSteps(){
     if(_steps != null && _steps.length > 0){
       return _steps;
