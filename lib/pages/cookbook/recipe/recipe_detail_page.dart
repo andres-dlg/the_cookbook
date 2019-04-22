@@ -16,8 +16,9 @@ class RecipeDetail extends StatefulWidget {
 
   Recipe recipe;
   Uint8List bytesImage;
+  Function callback;
 
-  RecipeDetail({this.recipe, this.bytesImage});
+  RecipeDetail({this.recipe, this.bytesImage, this.callback});
 
   @override
   _RecipeDetailState createState() => _RecipeDetailState();
@@ -26,6 +27,7 @@ class RecipeDetail extends StatefulWidget {
 class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
 
   RecipePresenter recipePresenter;
+  bool isFavourite = false;
 
   @override
   void initState() {
@@ -70,6 +72,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
           child: IconButton(
             icon: Icon(Icons.arrow_back_ios,),
             onPressed: () {
+              if(widget.callback != null) widget.callback();
               Navigator.pop(context);
             },
           ),
@@ -172,13 +175,33 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
   Widget _renderRecipeDifficulty() {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
-      child: Text(
-        "Level: " + widget.recipe.level,
-        style: TextStyle(
-            fontSize: 20.0,
-            fontFamily: 'Muli'
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "Level: " + widget.recipe.level,
+            style: TextStyle(
+                fontSize: 20.0,
+                fontFamily: 'Muli'
+            ),
+          ),
+          _renderFavouriteButton()
+        ],
       ),
+    );
+  }
+
+  Widget _renderFavouriteButton(){
+    return IconButton(
+      tooltip: "Favourite",
+      icon: Icon(
+        widget.recipe.isFavourite == 1 ? Icons.favorite : Icons.favorite_border,
+        color: widget.recipe.isFavourite == 1 ? Colors.red : Colors.black45,
+      ),
+      onPressed: () {
+        widget.recipe.isFavourite == 1 ? widget.recipe.isFavourite = 0 : widget.recipe.isFavourite = 1;
+        recipePresenter.updateRecipe(widget.recipe);
+      },
     );
   }
 
@@ -262,11 +285,14 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
               padding: const EdgeInsets.only(right: 8.0),
               child: Icon(Icons.check_box),
             ),
-            Text(
-              ingredient.description,
-              style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'Muli'
+            Container(
+              width: MediaQuery.of(context).size.width - 104,
+              child: Text(
+                ingredient.description,
+                style: TextStyle(
+                    fontSize: 18.0,
+                    fontFamily: 'Muli'
+                ),
               ),
             )
           ],

@@ -114,29 +114,6 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
         ),
       ),
     );
-    /*return AppBar(
-      elevation: 0.0,
-      backgroundColor: Colors.transparent,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios),
-        color: Colors.grey[500],
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-      title: Padding(
-        padding: const EdgeInsets.only(right: 48.0),
-        child: Center(
-          child: Text(
-            cookbook.name,
-            style: TextStyle(
-              color: Colors.black,
-              fontFamily: 'Muli',
-            ),
-          ),
-        ),
-      ),
-    );*/
   }
 
   Widget _renderRecipeCard(BuildContext context, Recipe recipe) {

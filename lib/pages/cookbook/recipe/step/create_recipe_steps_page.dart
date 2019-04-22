@@ -8,6 +8,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
+import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
 import 'package:the_cookbook/utils/separator.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
 import 'package:the_cookbook/storage/create_recipe_storage.dart';
@@ -35,6 +36,10 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
 
   PageController _pageController;
 
+  int itemIndexSelected;
+
+  ImagePickerAndCropper imagePickerAndCropper;
+
   void initState() {
 
     _currentPage = 0;
@@ -53,7 +58,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
     super.dispose();
   }
 
-  getImage(int itemIndex) async {
+  /*getImage(int itemIndex) async {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
     _cropImage(image, itemIndex);
   }
@@ -69,6 +74,25 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
 
     setState(() {
       CreateRecipeStorage.setStepImage(itemIndex,croppedFile);
+      print("Cropped file: " + croppedFile.path);
+    });
+  }*/
+
+  void callback(int option){
+    if(option != null && option == 1){
+      imagePickerAndCropper.getImageFromCamera().then((file)=>{
+      updatePage(file)
+      });
+    }else if(option != null && option == 2){
+      imagePickerAndCropper.getImageFromGallery().then((file)=>{
+      updatePage(file)
+      });
+    }
+  }
+
+  void updatePage(File croppedFile){
+    setState(() {
+      CreateRecipeStorage.setStepImage(itemIndexSelected,croppedFile);
       print("Cropped file: " + croppedFile.path);
     });
   }
@@ -205,7 +229,12 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
           color: Colors.white,
           iconSize: 64.0,
           tooltip: "Pick cover Image",
-          onPressed: () { getImage(itemIndex); },
+          onPressed: () {
+            this.itemIndexSelected = itemIndex;
+            imagePickerAndCropper = new ImagePickerAndCropper();
+            imagePickerAndCropper.showDialog(context, callback);
+            //getImage(itemIndex);
+          },
         ),
       ),
     );
@@ -288,9 +317,14 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
       widget.recipe.steps = stepsList;
       for(int i = 0; i<stepsList.length; i++){
         CreateRecipeStorage.setStep(stepsList[i]);
-        Uint8List _bytesImage;
-        _bytesImage = Base64Decoder().convert(stepsList[i].photoBase64Encoded);
-        CreateRecipeStorage.setStepImage(i, File.fromRawPath(_bytesImage));
+        if(stepsList[i].photoBase64Encoded == "DEFAULT"){
+          CreateRecipeStorage.setStepImage(i, null);
+        }else{
+          Uint8List _bytesImage;
+          _bytesImage = Base64Decoder().convert(stepsList[i].photoBase64Encoded);
+          CreateRecipeStorage.setStepImage(i, File.fromRawPath(_bytesImage));
+        }
+
       }
       setState(() {});
     });

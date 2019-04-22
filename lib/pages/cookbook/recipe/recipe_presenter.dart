@@ -29,6 +29,18 @@ class RecipePresenter {
     });
   }
 
+  Future<List<Recipe>> getFavouriteRecipes() {
+    return db.getFavouriteRecipes().whenComplete((){
+      updateScreen();
+    });
+  }
+
+  Future<bool> updateRecipe(Recipe recipe){
+    return db.updateRecipe(recipe).whenComplete((){
+      updateScreen();
+    });
+  }
+
   updateScreen() {
     _view.screenUpdate();
   }

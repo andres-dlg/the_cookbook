@@ -29,7 +29,7 @@ class StepPresenter {
   }
 
   updateScreen() {
-    _view.screenUpdate();
+    if(_view != null) _view.screenUpdate();
   }
 
 }

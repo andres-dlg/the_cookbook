@@ -1,4 +1,3 @@
-import 'package:the_cookbook/enums/level.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/step.dart';
 
@@ -12,6 +11,7 @@ class Recipe {
   String _coverBase64Encoded;
   String _level;
   int _durationInMinutes;
+  int _isFavourite;
   //int _diners;
 
   Recipe(
@@ -21,6 +21,7 @@ class Recipe {
     this._coverBase64Encoded,
     this._level,
     this._durationInMinutes,
+    this._isFavourite
     //this._diners
   );
 
@@ -30,7 +31,7 @@ class Recipe {
   set summary(value) => _summary = value;
   set level(value) => _level = value;
   set durationInMinutes(value) => _durationInMinutes = value;
-
+  set isFavourite(value) => _isFavourite = value;
 
   int get cookbookId => _cookbookId;
   String get name => _name;
@@ -40,6 +41,7 @@ class Recipe {
   //List<Step> get steps => _steps;
   String get level => _level;
   int get durationInMinutes => _durationInMinutes;
+  int get isFavourite => _isFavourite;
 
   Recipe.map(dynamic obj){
     this._cookbookId = obj["cookbookId"];
@@ -49,6 +51,7 @@ class Recipe {
     this._summary = obj["summary"];
     this._level = obj["level"];
     this._durationInMinutes = obj["durationInMinutes"];
+    this._isFavourite = obj["isFavourite"];
   }
 
   Map<String, dynamic> toMap() {
@@ -60,6 +63,7 @@ class Recipe {
     //map["steps"] = _steps;
     map["level"] = _level;
     map["durationInMinutes"] = _durationInMinutes;
+    map["isFavourite"] = _isFavourite;
     return map;
   }
 

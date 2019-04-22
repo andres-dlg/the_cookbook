@@ -49,6 +49,7 @@ class DatabaseHelper  {
         "coverBase64Encoded TEXT,"
         "summary TEXT,"
         "durationInMinutes INTEGER,"
+        "isFavourite INTEGER,"
         "level TEXT,"
         "CONSTRAINT cookbookId "
           "FOREIGN KEY (cookbookId) REFERENCES Cookbooks(cookbookId) "
@@ -132,7 +133,8 @@ class DatabaseHelper  {
         list[i]["summary"],
         list[i]["coverBase64Encoded"],
         list[i]["level"],
-        list[i]["durationInMinutes"]
+        list[i]["durationInMinutes"],
+        list[i]["isFavourite"]
       );
       recipe.setRecipeId(list[i]["recipeId"]);
       recipes.add(recipe);
@@ -152,6 +154,27 @@ class DatabaseHelper  {
     int res =   await theCookbookDb.update("Recipes", recipe.toMap(),
         where: "recipeId = ?", whereArgs: <int>[recipe.recipeId]);
     return res > 0 ? true : false;
+  }
+
+  Future<List<Recipe>> getFavouriteRecipes() async {
+    var dbTheCookbook = await db;
+    List<Map> list = await dbTheCookbook.rawQuery('SELECT * FROM Recipes WHERE isFavourite = 1');
+    List<Recipe> recipes = new List();
+    for (int i = 0; i < list.length; i++) {
+      var recipe = new Recipe(
+          list[i]["cookbookId"],
+          list[i]["name"],
+          list[i]["summary"],
+          list[i]["coverBase64Encoded"],
+          list[i]["level"],
+          list[i]["durationInMinutes"],
+          list[i]["isFavourite"]
+      );
+      recipe.setRecipeId(list[i]["recipeId"]);
+      recipes.add(recipe);
+    }
+    print("Recipes: " + recipes.length.toString());
+    return recipes;
   }
 
   // Step CRUD

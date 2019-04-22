@@ -159,6 +159,7 @@ class _CreateRecipeState extends State<CreateRecipe>{
         _encodeBgPhoto(),
         bucket.readState(context,identifier: "selectedDifficulty").toString().trim(),
         int.parse(bucket.readState(context,identifier: "selectedMinutes").toString().trim()),
+        0
       );
       // Save Recipe and when it finished, save Steps
       await db.saveRecipe(recipe).then((recipeId){

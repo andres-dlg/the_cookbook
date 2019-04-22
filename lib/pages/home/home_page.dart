@@ -9,6 +9,8 @@ import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_list_page.dart';
 import 'package:the_cookbook/pages/home/favourites_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
+import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
+import 'package:the_cookbook/utils/separator.dart';
 
 class Home extends StatefulWidget {
 
@@ -45,7 +47,7 @@ class _HomeState extends State<Home> implements CookbookContract {
     Future.delayed(Duration(milliseconds: 5000));
     return Scaffold(
       appBar: _renderAppBar(),
-      body: _currentIndex == 0 ? CookbookList(cookbookPresenter) : FavouritesList(Colors.deepOrange),
+      body: _currentIndex == 0 ? CookbookList(cookbookPresenter) : FavouritesList(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.create),
@@ -222,27 +224,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
   File _image;
   bool save = false;
   bool isError = false;
-
-  getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    _cropImage(image);
-  }
-
-  Future _cropImage(File imageFile) async {
-    File croppedFile = await ImageCropper.cropImage(
-      sourcePath: imageFile.path,
-      ratioX: 1.0,
-      ratioY: 1.0,
-      maxWidth: 512,
-      maxHeight: 512,
-    );
-
-    setState(() {
-      _image = croppedFile;
-      print("Cropped file: "+ _image.path);
-    });
-
-  }
+  ImagePickerAndCropper imagePickerAndCropper;
 
   @override
   void initState(){
@@ -317,11 +299,32 @@ class _MyDialogContentState extends State<MyDialogContent> {
               color: Colors.white,
               iconSize: 64.0,
               tooltip: "Pick Image",
-              onPressed: () { getImage(); },
+              onPressed: () {
+                imagePickerAndCropper = new ImagePickerAndCropper();
+                imagePickerAndCropper.showDialog(context, callback);
+              },
             ),
           ),
         )
     );
+  }
+
+  void callback(int option){
+    if(option != null && option == 1){
+        imagePickerAndCropper.getImageFromCamera().then((file)=>{
+          updatePage(file)
+      });
+    }else if(option != null && option == 2){
+      imagePickerAndCropper.getImageFromGallery().then((file)=>{
+        updatePage(file)
+      });
+    }
+  }
+
+  void updatePage(File file){
+    setState(() {
+      _image = file;
+    });
   }
 
   Widget _renderForegroundDialogContent() {

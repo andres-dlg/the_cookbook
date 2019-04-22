@@ -12,6 +12,7 @@ import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
 import 'package:the_cookbook/storage/create_recipe_storage.dart';
+import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
 import 'package:the_cookbook/utils/separator.dart';
 
 // ignore: must_be_immutable
@@ -42,6 +43,8 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
   RecipePresenter recipePresenter;
   StepPresenter stepPresenter;
 
+  ImagePickerAndCropper imagePickerAndCropper;
+
   //TEXT CONTROLLERS
   final _textRecipeNameController = TextEditingController();
   final _textMinutesController = TextEditingController();
@@ -58,7 +61,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
     //Fill form fields if another tab was selected and then returned to this.
     if(widget.recipe == null || widget.isNewRecipe){
 
-      widget.recipe = new Recipe(0, "", "", "DEFAULT", "", 0);
+      widget.recipe = new Recipe(0, "", "", "DEFAULT", "", 0, 0);
 
       var difficulty = PageStorage.of(context).readState(context, identifier: "selectedDifficulty");
       if(difficulty.toString().trim().isNotEmpty){
@@ -106,9 +109,13 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
         widget.recipe.steps = stepsList;
         for(int i = 0; i<stepsList.length; i++){
           CreateRecipeStorage.setStep(stepsList[i]);
-          Uint8List _bytesImage;
-          _bytesImage = Base64Decoder().convert(stepsList[i].photoBase64Encoded);
-          CreateRecipeStorage.setStepImage(i, File.fromRawPath(_bytesImage));
+          if(stepsList[i].photoBase64Encoded == "DEFAULT"){
+            CreateRecipeStorage.setStepImage(i, null);
+          }else{
+            Uint8List _bytesImage;
+            _bytesImage = Base64Decoder().convert(stepsList[i].photoBase64Encoded);
+            CreateRecipeStorage.setStepImage(i, File.fromRawPath(_bytesImage));
+          }
         }
       });
 
@@ -118,20 +125,19 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
 
   }
 
-  getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    _cropImage(image);
+  void callback(int option){
+    if(option != null && option == 1){
+      imagePickerAndCropper.getImageFromCamera().then((file)=>{
+        updatePage(file)
+      });
+    }else if(option != null && option == 2){
+      imagePickerAndCropper.getImageFromGallery().then((file)=>{
+        updatePage(file)
+      });
+    }
   }
 
-  Future _cropImage(File imageFile) async {
-    File croppedFile = await ImageCropper.cropImage(
-      sourcePath: imageFile.path,
-      ratioX: 1.0,
-      ratioY: 1.0,
-      maxWidth: 512,
-      maxHeight: 512,
-    );
-
+  void updatePage(File croppedFile){
     setState(() {
       newPhoto = true;
       List<int> imageBytes = croppedFile.readAsBytesSync();
@@ -139,7 +145,6 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
       widget.tempBgPhoto = widget.recipe.coverBase64Encoded;
       PageStorage.of(context).writeState(context, widget.recipe.coverBase64Encoded, identifier: "bgPhoto");
     });
-
   }
 
   static const menuItems = <String>[
@@ -154,7 +159,6 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
         child: Text(value),
       )
     ).toList();
-
 
   @override
   void dispose() {
@@ -212,7 +216,10 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
           color: Colors.white,
           iconSize: 64.0,
           tooltip: "Pick cover Image",
-          onPressed: () { getImage(); },
+          onPressed: () {
+            imagePickerAndCropper = new ImagePickerAndCropper();
+            imagePickerAndCropper.showDialog(context, callback);
+          },
         ),
       ),
     );
