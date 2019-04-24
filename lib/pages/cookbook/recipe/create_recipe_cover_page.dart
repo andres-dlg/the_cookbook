@@ -5,8 +5,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
@@ -542,6 +540,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
       controller: controller,
       maxLength: 40,
       textInputAction: TextInputAction.done,
+      autofocus: controller.text.isEmpty? true : false,
       decoration: InputDecoration(
         counterText: "",
         hintText: "Type here",
@@ -552,6 +551,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
     );
     TextFieldAndController textFieldAndController = new TextFieldAndController(textField,controller);
     CreateRecipeStorage.setIngredient(textFieldAndController);
+    if (!this.mounted) return;
     setState(() {
       //_scrollController.animateTo(_scrollController.position.maxScrollExtent+48.0, duration: Duration(milliseconds: 200), curve: Curves.linearToEaseOut);
     });

@@ -58,26 +58,6 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
     super.dispose();
   }
 
-  /*getImage(int itemIndex) async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    _cropImage(image, itemIndex);
-  }
-
-  Future _cropImage(File imageFile, itemIndex) async {
-    File croppedFile = await ImageCropper.cropImage(
-      sourcePath: imageFile.path,
-      ratioX: 1.0,
-      ratioY: 1.0,
-      maxWidth: 512,
-      maxHeight: 512,
-    );
-
-    setState(() {
-      CreateRecipeStorage.setStepImage(itemIndex,croppedFile);
-      print("Cropped file: " + croppedFile.path);
-    });
-  }*/
-
   void callback(int option){
     if(option != null && option == 1){
       imagePickerAndCropper.getImageFromCamera().then((file)=>{
@@ -100,19 +80,9 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: Padding(
-          padding:CreateRecipeStorage.getSteps().length > 0 ? const EdgeInsets.only(top: 128.0, left: 320) : const EdgeInsets.all(0),
-          child: FloatingActionButton(
-            child: Icon(Icons.add),
-            backgroundColor: Colors.pinkAccent,
-            onPressed: () {_createNewStep();},
-          ),
-        ),
-        floatingActionButtonLocation: CreateRecipeStorage.getSteps().length > 0 ? FloatingActionButtonLocation.startTop : FloatingActionButtonLocation.endFloat,
         body: Stack(
           children: <Widget>[
             _renderBody(),
-            //_renderBackButton(context),
           ],
         )
       );
@@ -138,7 +108,43 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
             ]
         ),
         height: MediaQuery.of(context).size.height,
-        child: _renderCarousel(context)
+        child: Stack(
+          children: <Widget>[
+            _renderCarousel(context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                CreateRecipeStorage.getSteps().length > 0 ?
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    FloatingActionButton(
+                        child: Icon(Icons.add),
+                        backgroundColor: Colors.pinkAccent,
+                        onPressed: () {_createNewStep();},
+                        shape: new RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(96.0), bottomLeft: Radius.circular(96.0)),
+                        ),
+                      ),
+                  ],
+                ) :
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: FloatingActionButton(
+                        child: Icon(Icons.add),
+                        backgroundColor: Colors.pinkAccent,
+                        onPressed: () {_createNewStep();},
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            )
+          ],
+        )
     );
   }
 
@@ -177,17 +183,40 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
           ],
         ),
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: <Widget>[
-                _renderStepTitle(step),
-                new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
-                _renderStepPhoto(context, itemIndex),
-                //new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
-                _renderStepDescription(step, itemIndex)
-              ],
-            ),
+          child: Stack(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                    height: 72,
+                    width: 72,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: IconButton(
+                        color: Colors.black54,
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          _deleteSlide(context, step, itemIndex);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: <Widget>[
+                    _renderStepTitle(step),
+                    new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
+                    _renderStepPhoto(context, itemIndex),
+                    //new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan),
+                    _renderStepDescription(step, itemIndex)
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -241,19 +270,39 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
   }
 
   Widget _renderBackgroundImage(int itemIndex) {
+    RecipeStep.Step step = CreateRecipeStorage.getSteps()[itemIndex];
     return Container(
         width: MediaQuery.of(context).size.width,
-        child: CreateRecipeStorage.getStepImage(itemIndex) == null ?
+        height: 248,
+        child: step.photoBase64Encoded == null || step.photoBase64Encoded.trim().isEmpty ?
         Image.asset(
           "assets/images/food_pattern.png",
           fit: BoxFit.cover,
         ) :
-        Image.file(
-          CreateRecipeStorage.getStepImage(itemIndex),
-          fit: BoxFit.cover,
-          gaplessPlayback: false,
-        )
+        _itemThumnail(step)
     );
+  }
+
+  Widget _itemThumnail(RecipeStep.Step step) {
+    var thumb;
+    if(step.photoBase64Encoded == "DEFAULT"){
+      thumb = SizedBox.expand(
+          child: Image.asset(
+            "assets/images/food_pattern.png",
+            fit: BoxFit.cover,
+          )
+      );
+    }else{
+      Uint8List _bytesImage;
+      _bytesImage = Base64Decoder().convert(step.photoBase64Encoded);
+      thumb = SizedBox.expand(
+          child: Image.memory(
+            _bytesImage,
+            fit: BoxFit.cover,
+          )
+      );
+    }
+    return thumb;
   }
 
   Widget _renderBackgroundOpacity() {
@@ -332,6 +381,36 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
 
   @override
   void screenUpdate() {
+    setState(() {});
+  }
+
+  void _deleteSlide(BuildContext context, RecipeStep.Step step, int itemIndex) {
+
+    //ITEMS REMOVAL
+    CreateRecipeStorage.getSteps().removeAt(itemIndex);
+    CreateRecipeStorage.getStepImages().remove(itemIndex);
+
+    //STEPS LIST UPDATE
+    List<RecipeStep.Step> steps = CreateRecipeStorage.getSteps();
+    if(steps.length>0){
+      for(int i = 0; i<steps.length;i++){
+        CreateRecipeStorage.getSteps()[i].title = "Step ${i+1}";
+      }
+    }
+
+    //STEPS IMAGES UPDATE
+    Map<int,File> stepImages = CreateRecipeStorage.getStepImages();
+    Map<int,File> newStepImages = new Map<int,File>();
+    int i = 0;
+    if(stepImages.length>0){
+      stepImages.forEach((key,value){
+        newStepImages[i]=value;
+        i++;
+      });
+    }
+
+    CreateRecipeStorage.setStepImages(newStepImages);
+
     setState(() {});
   }
 

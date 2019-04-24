@@ -225,8 +225,9 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
     return Text(
       recipe.name,
       style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Muli'
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Muli',
+        fontSize: 16.0,
       ),
     );
   }
@@ -235,16 +236,16 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
     return Row(
         children: <Widget>[
           Text(
-            "Difficulty: ",
+            "Level: ",
             style: TextStyle(
-                fontSize: 12.0,
+                fontSize: 14.0,
                 fontFamily: 'Muli'
             ),
           ),
           Text(
             recipe.level,
             style: TextStyle(
-                fontSize: 12.0,
+                fontSize: 14.0,
                 fontFamily: 'Muli'
             ),
           ),
@@ -256,13 +257,19 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
-        Icon(Icons.av_timer),
+        Container(
+          width: 24,
+          height: 24,
+          child: Image(
+            image: AssetImage("assets/images/clock.png"),
+          ),
+        ),
         Padding(
-          padding: const EdgeInsets.only(left: 4.0),
+          padding: const EdgeInsets.only(left: 8.0),
           child: Text(
-            "Min: " + recipe.durationInMinutes.toString(),
+            recipe.durationInMinutes.toString()+" Min",
             style: TextStyle(
-                fontSize: 12.0,
+                fontSize: 14.0,
                 fontFamily: 'Muli'
             ),
           ),

@@ -16,7 +16,7 @@ class CreateRecipeStorage {
     _stepImages = new Map<int,File>();
   }
 
-  static getSteps(){
+  static List<Step> getSteps(){
     if(_steps != null && _steps.length > 0){
       return _steps;
     }else{
@@ -24,7 +24,7 @@ class CreateRecipeStorage {
     }
   }
 
-  static getStepImages(){
+  static  Map<int,File> getStepImages(){
     if(_stepImages != null && _stepImages.length > 0){
       return _stepImages;
     }else{
@@ -34,6 +34,11 @@ class CreateRecipeStorage {
 
   static void setStepImage(int itemIndex, File croppedFile) {
     _stepImages[itemIndex] = croppedFile;
+  }
+
+  static void setStepImages(Map<int, File> newStepImages) {
+    _stepImages = new Map<int,File>();
+    _stepImages.addAll(newStepImages);
   }
 
   static void setStep(Step newStep) {
@@ -68,7 +73,7 @@ class CreateRecipeStorage {
     if(_textFieldAndController != null && _textFieldAndController.length > 0){
       return _textFieldAndController;
     }else{
-      return new List<Ingredient>();
+      return new List<TextFieldAndController>();
     }
   }
 
@@ -92,5 +97,7 @@ class CreateRecipeStorage {
   static void deleteIngredient(TextFieldAndController tf) {
     _textFieldAndController.remove(tf);
   }
+
+
 
 }

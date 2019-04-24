@@ -148,6 +148,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
             color: Colors.black,
             fontSize: 24.0,
             fontFamily: 'Muli',
+            fontWeight: FontWeight.bold
           )
       ),
     );
@@ -155,13 +156,22 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
 
   Widget _renderRecipeMinutes() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
+      padding: const EdgeInsets.only(bottom:8.0,left: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Icon(Icons.av_timer),
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Container(
+              width: 32,
+              height: 32,
+              child: Image(
+                image: AssetImage("assets/images/clock.png"),
+              ),
+            ),
+          ),
           Text(
-            " Minutes: " + widget.recipe.durationInMinutes.toString(),
+            widget.recipe.durationInMinutes.toString() + " Minutes",
             style: TextStyle(
                 fontSize: 20.0,
                 fontFamily: 'Muli'
@@ -195,8 +205,8 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
     return IconButton(
       tooltip: "Favourite",
       icon: Icon(
-        widget.recipe.isFavourite == 1 ? Icons.favorite : Icons.favorite_border,
-        color: widget.recipe.isFavourite == 1 ? Colors.red : Colors.black45,
+        widget.recipe.isFavourite == 1 ? Icons.star : Icons.star_border,
+        color: widget.recipe.isFavourite == 1 ? Colors.yellow : Colors.black45,
       ),
       onPressed: () {
         widget.recipe.isFavourite == 1 ? widget.recipe.isFavourite = 0 : widget.recipe.isFavourite = 1;
@@ -209,39 +219,51 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Center(
-                child: Text(
-                  "Summary",
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      fontFamily: 'Muli'
-                  )
-                ),
+        child: Stack(
+          children: <Widget>[
+            Container(
+              width: 32,
+              height: 32,
+              child: Image(
+                image: AssetImage("assets/images/summary.png"),
               ),
-              Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
-              widget.recipe.summary != "null" ?
-                Text(
-                    widget.recipe.summary,
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontFamily: 'Muli'
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Center(
+                    child: Text(
+                      "Summary",
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          fontFamily: 'Muli',
+                        fontWeight: FontWeight.bold
+                      )
+                    ),
+                  ),
+                  Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
+                  widget.recipe.summary != "null" ?
+                    Text(
+                        widget.recipe.summary,
+                        style: TextStyle(
+                            fontSize: 18.0,
+                            fontFamily: 'Muli'
+                        )
+                    ) :
+                    Center(child: Text(
+                        "No summary",
+                        style: TextStyle(
+                            fontSize: 18.0,
+                            fontFamily: 'Muli'
+                        )
                     )
-                ) :
-                Center(child: Text(
-                    "No summary",
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontFamily: 'Muli'
-                    )
-                )
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -251,24 +273,36 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
     return Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Center(
-                  child: Text(
-                      "Ingredients",
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontFamily: 'Muli'
-                      )
-                  ),
+          child: Stack(
+            children: <Widget>[
+              Container(
+                width: 32,
+                height: 32,
+                child: Image(
+                  image: AssetImage("assets/images/ingredients.png"),
                 ),
-                Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
-                _getIngredients(widget.recipe.ingredients)
-              ],
-            ),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                          "Ingredients",
+                          style: TextStyle(
+                              fontSize: 20.0,
+                              fontFamily: 'Muli',
+                              fontWeight: FontWeight.bold
+                          )
+                      ),
+                    ),
+                    Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
+                    _getIngredients(widget.recipe.ingredients)
+                  ],
+                ),
+              ),
+            ],
           ),
         )
     );
@@ -283,15 +317,24 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: Icon(Icons.check_box),
+              child: Container(
+                width: 16,
+                height: 16,
+                child: Image(
+                  image: AssetImage("assets/images/donut.png"),
+                ),
+              ),
             ),
-            Container(
-              width: MediaQuery.of(context).size.width - 104,
-              child: Text(
-                ingredient.description,
-                style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: 'Muli'
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width - 112,
+                child: Text(
+                  ingredient.description,
+                  style: TextStyle(
+                      fontSize: 18.0,
+                      fontFamily: 'Muli'
+                  ),
                 ),
               ),
             )

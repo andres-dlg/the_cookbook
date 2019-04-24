@@ -50,6 +50,12 @@ flutter:
   assets:
     - assets/gifs/spinner.gif
     - assets/images/food_pattern.png
+    - assets/images/cookbook.png
+    - assets/images/ingredients.png
+    - assets/images/summary.png
+    - assets/images/donut.png
+    - assets/images/clock.png
+    - assets/images/recipes-book.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

@@ -2,15 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:the_cookbook/database/database_helper.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_list_page.dart';
 import 'package:the_cookbook/pages/home/favourites_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
 import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
-import 'package:the_cookbook/utils/separator.dart';
 
 class Home extends StatefulWidget {
 
@@ -32,11 +29,6 @@ class _HomeState extends State<Home> implements CookbookContract {
   }
 
   int _currentIndex = 0;
-  /*List<Widget> _children = [
-    //CookbookList(MockCookbook.FetchAll()),
-    CookbookList(cookbookPresenter),
-    FavouritesList(Colors.deepOrange),
-  ];*/
 
   displayRecord() {
     setState(() {});
@@ -135,12 +127,15 @@ class _HomeState extends State<Home> implements CookbookContract {
         child: new Row(
           children: <Widget>[
             IconButton(
-              icon: Icon(Icons.library_books),
-              color: _currentIndex == 0 ? Colors.blueAccent :
-                                          Colors.black,
-              disabledColor: _currentIndex == 0 ? Colors.blueAccent :
-                                                  Colors.black,
-              onPressed: () {},
+              icon: new Container(
+                width: 24,
+                height: 24,
+                child: Image(
+                  image: _currentIndex == 0 ? AssetImage("assets/images/cookbook.png") : AssetImage("assets/images/recipes-book.png"),
+                ),
+              ),
+              color: _currentIndex == 0 ? Colors.blueAccent : Colors.black,
+              disabledColor: _currentIndex == 0 ? Colors.blueAccent : Colors.black,
             ),
             Text(
               "Cookbooks",
@@ -173,10 +168,9 @@ class _HomeState extends State<Home> implements CookbookContract {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.star),
-              color: _currentIndex == 1 ? Colors.blueAccent :
-                                          Colors.black,
-              disabledColor: _currentIndex == 1 ? Colors.blueAccent : Colors.black, onPressed: () {},
+              icon: _currentIndex == 1 ? Icon(Icons.star) : Icon(Icons.star_border),
+              color: _currentIndex == 1 ? Colors.yellow : Colors.black,
+              disabledColor: _currentIndex == 1 ? Colors.yellow : Colors.black,
             ),
           ],
         ),
