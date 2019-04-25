@@ -161,7 +161,11 @@ class _CreateRecipeState extends State<CreateRecipe>{
         bucket.readState(context,identifier: "recipeSummary").toString().trim().isEmpty ? "" : bucket.readState(context,identifier: "recipeSummary").toString().trim(),
         _encodeBgPhoto(),
         bucket.readState(context,identifier: "selectedDifficulty").toString().trim(),
-        int.parse(bucket.readState(context,identifier: "selectedMinutes").toString().trim()),
+        int.parse(
+            bucket.readState(context,identifier: "selectedMinutes") != null ?
+            bucket.readState(context,identifier: "selectedMinutes").toString().trim() :
+            "987654321"
+        ),
         0
       );
       // Save Recipe and when it finished, save Steps

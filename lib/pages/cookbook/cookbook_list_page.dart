@@ -3,12 +3,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:the_cookbook/database/database_helper.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
+import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
 
 // ignore: must_be_immutable
 class CookbookList extends StatefulWidget {
@@ -252,33 +251,13 @@ class MyDialogContent extends StatefulWidget {
 
 class _MyDialogContentState extends State<MyDialogContent> {
 
-  File croppedFile;
   bool save = false;
   bool isError = false;
 
   //CONTROLLERS
   final _textEditingController = TextEditingController();
 
-  getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    _cropImage(image);
-  }
-
-  Future _cropImage(File imageFile) async {
-    croppedFile = await ImageCropper.cropImage(
-      sourcePath: imageFile.path,
-      ratioX: 1.0,
-      ratioY: 1.0,
-      maxWidth: 512,
-      maxHeight: 512,
-    );
-
-    setState(() {
-      List<int> imageBytes = croppedFile.readAsBytesSync();
-      widget.cookbook.coverBase64Encoded = base64Encode(imageBytes);
-    });
-
-  }
+  ImagePickerAndCropper imagePickerAndCropper;
 
   @override
   void initState(){
@@ -361,11 +340,33 @@ class _MyDialogContentState extends State<MyDialogContent> {
               color: Colors.white,
               iconSize: 64.0,
               tooltip: "Pick Image",
-              onPressed: () { getImage(); },
+              onPressed: () {
+                imagePickerAndCropper = new ImagePickerAndCropper();
+                imagePickerAndCropper.showDialog(context, callback);
+              },
             ),
           ),
         )
     );
+  }
+
+  void callback(int option){
+    if(option != null && option == 1){
+      imagePickerAndCropper.getImageFromCamera().then((file)=>{
+      updatePage(file)
+      });
+    }else if(option != null && option == 2){
+      imagePickerAndCropper.getImageFromGallery().then((file)=>{
+      updatePage(file)
+      });
+    }
+  }
+
+  void updatePage(File file){
+    setState(() {
+      List<int> imageBytes = file.readAsBytesSync();
+      widget.cookbook.coverBase64Encoded = base64Encode(imageBytes);
+    });
   }
 
   Widget _renderForegroundDialogContent() {

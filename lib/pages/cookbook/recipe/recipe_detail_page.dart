@@ -170,13 +170,22 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
               ),
             ),
           ),
+          widget.recipe.durationInMinutes != 987654321 ?
           Text(
             widget.recipe.durationInMinutes.toString() + " Minutes",
             style: TextStyle(
                 fontSize: 20.0,
                 fontFamily: 'Muli'
             ),
-          ),
+          ) :
+          Text(
+            "N/A",
+            style: TextStyle(
+                fontSize: 20.0,
+                fontFamily: 'Muli'
+            ),
+          )
+          ,
         ],
       ),
     );
@@ -188,17 +197,60 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(
-            "Level: " + widget.recipe.level,
-            style: TextStyle(
-                fontSize: 20.0,
-                fontFamily: 'Muli'
-            ),
+          Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  "Level: ",
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      fontFamily: 'Muli'
+                  ),
+                ),
+              ),
+              widget.recipe.level != "null" ?
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4.0, left: 4.0),
+                child: _renderLevelIcon(widget.recipe.level),
+              ):
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0, left: 4.0),
+                child: Text("N/A", style: TextStyle(fontSize: 20.0, fontFamily: 'Muli'),),
+              )
+
+            ],
           ),
           _renderFavouriteButton()
         ],
       ),
     );
+  }
+
+
+  Widget _renderLevelIcon(String level){
+    Widget container;
+    if(level.toLowerCase()=="easy"){
+      container = Container(
+        height: 32,
+        width: 32,
+        child: Image.asset("assets/images/level_easy.png"),
+      );
+    }else if(level.toLowerCase()=="medium"){
+      container = Container(
+        height: 32,
+        width: 32,
+        child: Image.asset("assets/images/level_medium.png"),
+      );
+    }
+    else {
+      container = Container(
+        height: 32,
+        width: 32,
+        child: Image.asset("assets/images/level_hard.png"),
+      );
+    }
+    return container;
   }
 
   Widget _renderFavouriteButton(){
@@ -246,20 +298,21 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
                   Center(child: new Separator(width: 64.0, heigth: 1.0, color: Colors.cyan,)),
                   widget.recipe.summary != "null" ?
                     Text(
-                        widget.recipe.summary,
-                        style: TextStyle(
-                            fontSize: 18.0,
-                            fontFamily: 'Muli'
-                        )
+                      widget.recipe.summary,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontFamily: 'Muli'
+                      )
                     ) :
-                    Center(child: Text(
+                    Center(child:
+                      Text(
                         "No summary",
                         style: TextStyle(
-                            fontSize: 18.0,
-                            fontFamily: 'Muli'
+                          fontSize: 18.0,
+                          fontFamily: 'Muli'
                         )
-                    )
-                  ),
+                      )
+                    ),
                 ],
               ),
             ),
@@ -345,8 +398,14 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
 
       return Column(children: ingredientsRows);
     }else{
-      return Center(
-        child: Text("No ingredients"),
+      return Center(child:
+      Text(
+          "No ingredients",
+          style: TextStyle(
+              fontSize: 18.0,
+              fontFamily: 'Muli'
+          )
+      )
       );
     }
 

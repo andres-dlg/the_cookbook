@@ -56,6 +56,10 @@ flutter:
     - assets/images/donut.png
     - assets/images/clock.png
     - assets/images/recipes-book.png
+    - assets/images/level_easy.png
+    - assets/images/level_medium.png
+    - assets/images/level_hard.png
+    - assets/images/level_none.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

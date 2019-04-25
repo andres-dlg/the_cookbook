@@ -69,7 +69,7 @@ class CreateRecipeStorage {
     return _steps[itemIndex];
   }
 
-  static getIngredients(){
+  static List<TextFieldAndController> getIngredients(){
     if(_textFieldAndController != null && _textFieldAndController.length > 0){
       return _textFieldAndController;
     }else{
@@ -94,7 +94,7 @@ class CreateRecipeStorage {
 
   }
 
-  static void deleteIngredient(TextFieldAndController tf) {
+  static deleteIngredient(TextFieldAndController tf) {
     _textFieldAndController.remove(tf);
   }
 

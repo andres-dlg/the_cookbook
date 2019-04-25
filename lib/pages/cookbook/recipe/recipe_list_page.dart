@@ -235,23 +235,49 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
   Widget _renderRecipeDifficulty(Recipe recipe){
     return Row(
         children: <Widget>[
-          Text(
-            "Level: ",
-            style: TextStyle(
-                fontSize: 14.0,
-                fontFamily: 'Muli'
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Text(
+              "Level: ",
+              style: TextStyle(
+                  fontSize: 15.0,
+                  fontFamily: 'Muli'
+              ),
             ),
           ),
-          Text(
-            recipe.level,
-            style: TextStyle(
-                fontSize: 14.0,
-                fontFamily: 'Muli'
-            ),
-          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: recipe.level != "null" ? _renderLevelIcon(recipe.level) : Padding(padding: EdgeInsets.only(top: 12.0), child:Text("N/A")),
+          )
         ]
     );
   }
+
+  Widget _renderLevelIcon(String level){
+    Widget container;
+    if(level.toLowerCase()=="easy"){
+      container = Container(
+        height: 24,
+        width: 24,
+        child: Image.asset("assets/images/level_easy.png"),
+      );
+    }else if(level.toLowerCase()=="medium"){
+      container = Container(
+        height: 24,
+        width: 24,
+        child: Image.asset("assets/images/level_medium.png"),
+      );
+    }
+    else {
+      container = Container(
+        height: 24,
+        width: 24,
+        child: Image.asset("assets/images/level_hard.png"),
+      );
+    }
+    return container;
+  }
+
 
   Widget _renderRecipeTime(Recipe recipe){
     return Row(
@@ -267,7 +293,9 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: Text(
-            recipe.durationInMinutes.toString()+" Min",
+            recipe.durationInMinutes.toString() != "987654321" ?
+            recipe.durationInMinutes.toString()+" Min" :
+            "N/A",
             style: TextStyle(
                 fontSize: 14.0,
                 fontFamily: 'Muli'

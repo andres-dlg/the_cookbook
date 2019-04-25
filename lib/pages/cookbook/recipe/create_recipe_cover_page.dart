@@ -85,23 +85,42 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
 
       _selectedDiffulty = widget.recipe.level;
 
-      _textMinutesController.text = widget.recipe.durationInMinutes.toString();
+      _textMinutesController.text = widget.recipe.durationInMinutes.toString() != "987654321" ? widget.recipe.durationInMinutes.toString() : null;
 
       _textRecipeNameController.text = widget.recipe.name;
       PageStorage.of(context).writeState(context, widget.recipe.name.trim(), identifier: "recipeName");
 
-      _textSummaryController.text = widget.recipe.summary;
+      _textSummaryController.text = widget.recipe.summary != "null" ? widget.recipe.summary : "";
 
-      recipePresenter.getIngredients(widget.recipe.cookbookId, widget.recipe.recipeId).then((ingredientList){
+      if(CreateRecipeStorage.getIngredients().length==0){
 
-        widget.recipe.ingredients = ingredientList;
+        recipePresenter.getIngredients(widget.recipe.cookbookId, widget.recipe.recipeId).then((ingredientList){
 
-        for(Ingredient ingredient in ingredientList){
-          _addTextField(text: ingredient.description);
-          this.widget.callback();
+          widget.recipe.ingredients = ingredientList;
+
+          for(Ingredient ingredient in ingredientList){
+            _addTextField(text: ingredient.description);
+            //this.widget.callback();
+          }
+
+        });
+
+      }else{
+
+        List<TextFieldAndController> tempList = new List<TextFieldAndController>();
+        tempList.addAll(CreateRecipeStorage.getIngredients());
+
+        for(TextFieldAndController tf in tempList){
+          CreateRecipeStorage.deleteIngredient(tf);
+          //this.widget.callback();
         }
 
-      });
+        for(TextFieldAndController tf in tempList){
+          _addTextField(text: tf.getTextField.controller.text);
+          //this.widget.callback();
+        }
+
+      }
 
       stepPresenter.getSteps(widget.recipe.cookbookId, widget.recipe.recipeId).then((stepsList){
         widget.recipe.steps = stepsList;
@@ -160,8 +179,13 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
 
   @override
   void dispose() {
-    _textRecipeNameController.dispose();
     super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
   }
 
   @override
@@ -343,7 +367,13 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Icon(Icons.signal_cellular_4_bar),
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  child: Image(
+                    image: _renderLevelImage(widget.recipe.level)
+                  ),
+                ),
               ),
               Text(
                 "Difficulty:",
@@ -362,7 +392,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                 fontWeight: FontWeight.bold,
                 color: Colors.black
             ),
-            value: _selectedDiffulty,
+            value: _selectedDiffulty != "null" ? _selectedDiffulty : null,
             hint: Text("Choose"),
             onChanged: (newSelectedDifficulty) {
               setState(() {
@@ -388,7 +418,13 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Icon(Icons.access_time),
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  child: Image(
+                    image: AssetImage("assets/images/clock.png"),
+                  ),
+                ),
               ),
               Text(
                 "Minutes:",
@@ -540,7 +576,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
       controller: controller,
       maxLength: 40,
       textInputAction: TextInputAction.done,
-      autofocus: controller.text.isEmpty? true : false,
+      autofocus: controller.text.isEmpty? false : false,
       decoration: InputDecoration(
         counterText: "",
         hintText: "Type here",
@@ -566,18 +602,41 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
   }
 
   void deleteTextField(ValueKey<int> valueKey) {
+    TextFieldAndController tempTf;
     for(TextFieldAndController tf in CreateRecipeStorage.getIngredients()){
       if(tf.textField.key == valueKey){
-        CreateRecipeStorage.deleteIngredient(tf);
-        setState(() {});
+        tempTf = tf;
         break;
       }
     }
+
+    CreateRecipeStorage.deleteIngredient(tempTf);
+    setState(() {});
+
   }
+
+  @override
+  void setState(fn) {
+    widget.callback();
+    super.setState(fn);
+  }
+
 
   @override
   void screenUpdate() {
     setState(() {});
+  }
+
+  _renderLevelImage(String level) {
+    if(level.toLowerCase()=="easy"){
+      return AssetImage("assets/images/level_easy.png");
+    }else if(level.toLowerCase()=="medium"){
+      return AssetImage("assets/images/level_medium.png");
+    }else if(level.toLowerCase()=="hard"){
+      return AssetImage("assets/images/level_hard.png");
+    }else{
+      return AssetImage("assets/images/level_none.png");
+    }
   }
 
 }
