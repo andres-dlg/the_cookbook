@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
@@ -413,7 +411,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
   }
 
   _navigateToRecipeSteps(BuildContext context, Recipe recipe) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    //SystemChrome.setEnabledSystemUIOverlays([]);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RecipeStepsPage(recipe: recipe)),

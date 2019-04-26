@@ -4,8 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
 import 'package:the_cookbook/utils/image_picker_and_cropper.dart';

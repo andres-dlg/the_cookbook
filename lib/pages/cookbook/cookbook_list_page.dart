@@ -54,21 +54,53 @@ class _CookbookListState extends State<CookbookList> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasError) print(snapshot.error);
         List<Cookbook> cookbooks = snapshot.data;
-        return snapshot.hasData
-            ? GridView.count(
-          // Create a grid with 2 columns. If you change the scrollDirection to
-          // horizontal, this would produce 2 rows.
-              crossAxisCount: 2,
-              // Generate as many Widgets as cookbooks are present on cookbooks array
-              children: List.generate(cookbooks.length, (index) {
-                return Center(
-                    child: _itemCard(context, cookbooks[index])
-                );
-              }),
-            )
-            : new Center(child: new CircularProgressIndicator());
+        return _renderMainScreen(snapshot.hasData, cookbooks);
+
       },
     );
+  }
+
+  _renderMainScreen(bool hasData, List<Cookbook> cookbooks){
+
+    if(!hasData){
+
+      return Center(child: CircularProgressIndicator(),);
+
+    }else if(hasData && cookbooks.length == 0){
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: new Image.asset('assets/images/recipes-book.png',color: Colors.black26,),
+              iconSize: 128,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48.0),
+              child: Text(
+                "Create a new one pressing the blue button",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Muli',
+                  color: Colors.black45,
+                ),
+              ),
+            ),
+          ]
+      );
+    }else{
+      return GridView.count(
+        // Create a grid with 2 columns. If you change the scrollDirection to
+        // horizontal, this would produce 2 rows.
+        crossAxisCount: 2,
+        // Generate as many Widgets as cookbooks are present on cookbooks array
+        children: List.generate(cookbooks.length, (index) {
+          return Center(
+              child: _itemCard(context, cookbooks[index])
+          );
+        }),
+      );
+    }
   }
 
   Widget _itemCard(BuildContext context, Cookbook cookbook) {
@@ -102,7 +134,7 @@ class _CookbookListState extends State<CookbookList> {
                     onCanceled: () {
                       print('You have not chossed anything');
                     },
-                    tooltip: 'This is tooltip',
+                    tooltip: 'Menu',
                     onSelected: (value) => _select(value,cookbook),
                     itemBuilder: (BuildContext context) {
                       return choices.map((CustomPopupMenu choice) {
@@ -163,12 +195,6 @@ class _CookbookListState extends State<CookbookList> {
     );
   }
 
-  _displaySnackbar(BuildContext context, String name) {
-    Scaffold.of(context).showSnackBar(new SnackBar(
-      content: new Text(name),
-    ));
-  }
-
   _navigateToRecipeList(BuildContext context, Cookbook cookbook) {
     Navigator.push(
       context,
@@ -177,14 +203,7 @@ class _CookbookListState extends State<CookbookList> {
   }
 
   _deleteCookbook(BuildContext context, Cookbook cookbook) async {
-    Future<int> res = widget.cookbookPresenter.delete(cookbook);
-    res.then((result) {
-      if(result == 1){
-        _displaySnackbar(context, "Cookbook deleted");
-      }else{
-        _displaySnackbar(context, "Some error occured");
-      }
-    });
+    widget.cookbookPresenter.delete(cookbook);
   }
 
   void _showEditDialog(Cookbook cookbook) {
@@ -235,6 +254,7 @@ class CustomPopupMenu {
   IconData icon;
 }
 
+// ignore: must_be_immutable
 class MyDialogContent extends StatefulWidget {
 
   Cookbook cookbook;

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/step.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_cover_page.dart';
 

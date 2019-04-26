@@ -103,6 +103,25 @@ class DatabaseHelper  {
 
   Future<int> deleteCookbook(Cookbook cookbook) async {
     var theCookbookDb = await db;
+    theCookbookDb.rawDelete('DELETE FROM Steps '
+        'WHERE Steps.recipeId IN ('
+          'SELECT Recipes.recipeId '
+          'FROM Recipes '
+          'INNER JOIN Cookbooks '
+            'ON Cookbooks.cookbookId = Recipes.cookbookId '
+          'WHERE Recipes.cookbookId = ?'
+        ')', [cookbook.cookbookId]
+    );
+    theCookbookDb.rawDelete(
+        'DELETE FROM Ingredients '
+        'WHERE Ingredients.recipeId IN ( '
+          'SELECT Recipes.recipeId FROM Recipes '
+          'INNER JOIN Cookbooks '
+            'ON Cookbooks.cookbookId = Recipes.cookbookId '
+          'WHERE Recipes.cookbookId = ?'
+        ')', [cookbook.cookbookId]
+    );
+    theCookbookDb.rawDelete('DELETE FROM Recipes WHERE cookbookId = ?', [cookbook.cookbookId]);
     int res = await theCookbookDb.rawDelete('DELETE FROM Cookbooks WHERE cookbookId = ?', [cookbook.cookbookId]);
     return res;
   }
@@ -146,6 +165,8 @@ class DatabaseHelper  {
   Future<int> deleteRecipe(Recipe recipe) async {
     var theCookbookDb = await db;
     int res = await theCookbookDb.rawDelete('DELETE FROM Recipes WHERE recipeId = ?', [recipe.recipeId]);
+    await theCookbookDb.rawDelete('DELETE FROM Steps WHERE recipeId = ?', [recipe.recipeId]);
+    await theCookbookDb.rawDelete('DELETE FROM Ingredients WHERE recipeId = ?', [recipe.recipeId]);
     return res;
   }
 

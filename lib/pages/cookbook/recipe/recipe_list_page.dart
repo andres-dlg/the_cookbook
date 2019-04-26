@@ -40,7 +40,38 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _renderAppBar(context),
-      body: ListView.builder(
+      body: this.widget.cookbook.recipes == null || this.widget.cookbook.recipes.length == 0 ?
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height/3),
+                child: Center(
+                  child: Text(
+                    "To create a new recipe press the blue button :)",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontFamily: 'Muli',
+                        fontSize: 20
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width/2,
+                  child: Image.asset(
+                      "assets/images/turn.png",
+                  ),
+                ),
+              )
+            ],
+          )
+            :
+
+
+      ListView.builder(
         itemCount: this.widget.cookbook.recipes == null ? 0 : this.widget.cookbook.recipes.length,
         itemBuilder: (context, index) {
           return _renderRecipeCard(context, this.widget.cookbook.recipes[index]);
@@ -337,7 +368,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
         // return object of type Dialog
         return AlertDialog(
           title: new Text("Delete confirmation"),
-          content: new Text("Are sure do you want to delete this recipe?"),
+          content: new Text("Are sure you want to delete this recipe?"),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Yes"),

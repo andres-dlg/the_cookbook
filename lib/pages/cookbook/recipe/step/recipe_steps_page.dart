@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
 import 'package:carousel_slider/carousel_slider.dart';
@@ -37,11 +36,15 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
   Widget build(BuildContext context) {
     return WillPopScope(
       child: Scaffold(
-          backgroundColor: Colors.blue,
-          body: _renderBody(context)
+          body: Stack(
+            children: <Widget>[
+              _renderBody(context),
+              _renderBackButton(context)
+            ],
+          )
       ), onWillPop: () {
       Navigator.pop(context);
-      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+      //SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     },
     );
   }
@@ -49,21 +52,84 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
   Widget _renderBody(BuildContext context) {
     if(widget.recipe.steps!=null && widget.recipe.steps.length>0){
       return Container(
-        height: MediaQuery.of(context).size.height,
-        child: Stack(
-          children: <Widget>[
-            _renderCarousel(context),
-            _renderBackButton(context),
-          ],
+        decoration: new BoxDecoration(
+            gradient: new LinearGradient(
+                colors: [Color.fromRGBO(179,229,252, 1), Colors.blueAccent],
+                begin: const FractionalOffset(0.0, 0.0),
+                end: const FractionalOffset(0.5, 0.0),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp
+            ),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 10.0
+              )
+            ]
         ),
+        height: MediaQuery.of(context).size.height,
+        child: _renderCarousel(context),
       );
     }else{
-      return Center(
-        child: Text("No steps"),
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: new BoxDecoration(
+            gradient: new LinearGradient(
+                colors: [Color.fromRGBO(179,229,252, 1), Colors.blueAccent],
+                begin: const FractionalOffset(0.0, 0.0),
+                end: const FractionalOffset(0.5, 0.0),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp
+            ),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 10.0
+              )
+            ]
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+                Icons.local_pizza,
+              color: Colors.white,
+              size: 128,
+            ),
+            Text(
+              "There are no steps to show :(",
+              style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'Muli',
+                color: Colors.white,
+              ),
+            ),
+          ]
+        ),
       );
     }
-
   }
+
+  Widget _renderBackButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 32.0, left: 8.0),
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(0, 0, 0, 0.3),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          icon: Icon(Icons.arrow_back_ios,color: Colors.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+
 
   Widget _renderCarousel(BuildContext context) {
     return CarouselSlider(
@@ -81,28 +147,10 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
     );
   }
 
-  Widget _renderBackButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color.fromRGBO(0, 0, 0, 0.3),
-          shape: BoxShape.circle,
-        ),
-        child: IconButton(
-          icon: Icon(Icons.arrow_back_ios,color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-            SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-          },
-        ),
-      ),
-    );
-  }
 
   Widget _renderStepSlide(BuildContext context, RecipeStep.Step step) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+      padding: const EdgeInsets.only(top: 36.0, bottom: 16.0),
       child: Container(
         width: MediaQuery.of(context).size.width,
         margin: EdgeInsets.symmetric(horizontal: 3.0),

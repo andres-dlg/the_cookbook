@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:the_cookbook/database/database_helper.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
@@ -11,6 +10,7 @@ import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_cover_page.dart
 import 'package:the_cookbook/pages/cookbook/recipe/step/create_recipe_steps_page.dart';
 import 'package:the_cookbook/storage/create_recipe_storage.dart';
 
+// ignore: must_be_immutable
 class CreateRecipe extends StatefulWidget {
 
   int cookbookId;
@@ -180,7 +180,6 @@ class _CreateRecipeState extends State<CreateRecipe>{
 
   void _saveSteps(DatabaseHelper db, List<RecipeStep.Step> steps, Map<int,File> stepImages, int recipeId) async {
 
-    var ss = stepImages;
     // IN CASE OF UPDATE
     if(widget.recipe != null){
       db.deleteStepsForRecipe(recipeId);
@@ -233,6 +232,8 @@ class _CreateRecipeState extends State<CreateRecipe>{
     return Padding(
       padding: const EdgeInsets.only(top: 32.0, left: 8.0),
       child: Container(
+        height: 40,
+        width: 40,
         decoration: BoxDecoration(
           color: Color.fromRGBO(0, 0, 0, 0.3),
           shape: BoxShape.circle,
