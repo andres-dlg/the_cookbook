@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/create_recipe_page.dart';
@@ -48,7 +49,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
                 padding: EdgeInsets.only(top: MediaQuery.of(context).size.height/3),
                 child: Center(
                   child: Text(
-                    "To create a new recipe press the blue button :)",
+                    AppTranslations.of(context).text("key_favourites_recipes_text"),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: 'Muli',
@@ -79,7 +80,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.create),
-          tooltip: "Create recipe",
+          tooltip: AppTranslations.of(context).text("key_create_recipe_tooltip_button"),
           onPressed: (){
             Navigator.push(
               context,
@@ -172,7 +173,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
               color: Colors.black45,
             ),
             child: new IconSlideAction(
-              caption: 'Edit',
+              caption: AppTranslations.of(context).text("key_edit"),
               color: Colors.transparent,
               icon: Icons.edit,
               onTap: () => {
@@ -191,7 +192,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
                 color: Colors.red,
             ),
             child: new IconSlideAction(
-              caption: 'Delete',
+              caption: AppTranslations.of(context).text("key_delete"),
               color: Colors.transparent,
               icon: Icons.delete,
               onTap: () => {
@@ -269,7 +270,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
           Padding(
             padding: const EdgeInsets.only(top: 12.0),
             child: Text(
-              "Level: ",
+              "${AppTranslations.of(context).text("key_recipe_level")}: ",
               style: TextStyle(
                   fontSize: 15.0,
                   fontFamily: 'Muli'
@@ -325,7 +326,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
           padding: const EdgeInsets.only(left: 8.0),
           child: Text(
             recipe.durationInMinutes.toString() != "987654321" ?
-            recipe.durationInMinutes.toString()+" Min" :
+            recipe.durationInMinutes.toString()+" ${AppTranslations.of(context).text("key_recipe_minutes")}" :
             "N/A",
             style: TextStyle(
                 fontSize: 14.0,
@@ -367,18 +368,18 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Delete confirmation"),
-          content: new Text("Are sure you want to delete this recipe?"),
+          title: new Text(AppTranslations.of(context).text("key_dialog_delete_recipe_title")),
+          content: new Text(AppTranslations.of(context).text("key_dialog_delete_recipe_text")),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Yes"),
+              child: new Text(AppTranslations.of(context).text("key_dialog_delete_accept")),
               onPressed: () {
                 _deleteRecipe(recipe);
                 Navigator.of(context).pop();
               },
             ),
             new FlatButton(
-              child: new Text("No"),
+              child: new Text(AppTranslations.of(context).text("key_dialog_delete_cancel")),
               onPressed: () {
                 Navigator.of(context).pop();
               },

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/step/step_presenter.dart';
 import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
@@ -71,6 +72,8 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
   void updatePage(File croppedFile){
     setState(() {
       CreateRecipeStorage.setStepImage(itemIndexSelected,croppedFile);
+      List<int> imageBytes = croppedFile.readAsBytesSync();
+      CreateRecipeStorage.getSteps()[itemIndexSelected].photoBase64Encoded = base64Encode(imageBytes);
       print("Cropped file: " + croppedFile.path);
     });
   }
@@ -223,7 +226,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
 
   Widget _renderStepTitle(RecipeStep.Step step){
     return Text(
-      step.title,
+      "${AppTranslations.of(context).text("key_recipe_step")} ${step.title}",
       style: TextStyle(
         color: Colors.black,
         fontSize: 24.0,
@@ -255,7 +258,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
           icon: Icon(Icons.camera_alt),
           color: Colors.white,
           iconSize: 64.0,
-          tooltip: "Pick cover Image",
+          tooltip: AppTranslations.of(context).text("key_tooltip_pick_image"),
           onPressed: () {
             this.itemIndexSelected = itemIndex;
             imagePickerAndCropper = new ImagePickerAndCropper();
@@ -315,7 +318,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
         Padding(
           padding: const EdgeInsets.only(top: 16.0),
           child: Text(
-            "Description",
+            AppTranslations.of(context).text("key_step_description"),
             style: TextStyle(
               color: Colors.black,
               fontSize: 24.0,
@@ -331,7 +334,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
           maxLines: null,
           maxLength: 1000,
           decoration: InputDecoration(
-            hintText: "Write here!!"
+            hintText: AppTranslations.of(context).text("key_step_description_hint")
           ),
           onChanged: (value){
             CreateRecipeStorage.getStep(itemIndex).description = value;
@@ -345,7 +348,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
 
     var nextStep = CreateRecipeStorage.getSteps().length + 1;
 
-    RecipeStep.Step newStep = new RecipeStep.Step(0, "Step $nextStep", "", "DEFAULT");
+    RecipeStep.Step newStep = new RecipeStep.Step(0, "$nextStep", "", "DEFAULT");
 
     CreateRecipeStorage.setStep(newStep);
 
@@ -392,7 +395,7 @@ class _CreateRecipeStepsState extends State<CreateRecipeSteps>  implements StepC
     List<RecipeStep.Step> steps = CreateRecipeStorage.getSteps();
     if(steps.length>0){
       for(int i = 0; i<steps.length;i++){
-        CreateRecipeStorage.getSteps()[i].title = "Step ${i+1}";
+        CreateRecipeStorage.getSteps()[i].title = "${i+1}";
       }
     }
 

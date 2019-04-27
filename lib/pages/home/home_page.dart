@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/database/database_helper.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_list_page.dart';
 import 'package:the_cookbook/pages/home/favourites_list_page.dart';
@@ -43,7 +44,7 @@ class _HomeState extends State<Home> implements CookbookContract {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.create),
-        tooltip: "Create cookbook",
+        tooltip: AppTranslations.of(context).text("key_tooltip_create_cookbook_button"),
         onPressed: () {
           _showDialog();
         },
@@ -138,7 +139,7 @@ class _HomeState extends State<Home> implements CookbookContract {
               disabledColor: _currentIndex == 0 ? Colors.blueAccent : Colors.black,
             ),
             Text(
-              "Cookbooks",
+              AppTranslations.of(context).text("key_cookbooks_tab_name"),
               style: TextStyle(
                   fontFamily: 'Muli',
                   fontWeight: FontWeight.bold,
@@ -160,7 +161,7 @@ class _HomeState extends State<Home> implements CookbookContract {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             Text(
-              "Favourites",
+              AppTranslations.of(context).text("key_favourites_tab_name"),
               style: TextStyle(
                   fontFamily: 'Muli',
                   fontWeight: FontWeight.bold,
@@ -292,7 +293,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               icon: Icon(Icons.camera_alt),
               color: Colors.white,
               iconSize: 64.0,
-              tooltip: "Pick Image",
+              tooltip: AppTranslations.of(context).text("key_tooltip_pick_image"),
               onPressed: () {
                 imagePickerAndCropper = new ImagePickerAndCropper();
                 imagePickerAndCropper.showDialog(context, callback);
@@ -337,7 +338,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
     return Center(
       heightFactor: 2,
       child: Text(
-        "Create new cookbook",
+        AppTranslations.of(context).text("key_create_new_cookbook_title"),
         style: TextStyle(
             color: Colors.white,
             fontFamily: 'Muli',
@@ -364,7 +365,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
             fontWeight: FontWeight.bold
         ),
         decoration: InputDecoration(
-          labelText: 'Cookbook name',
+          labelText: AppTranslations.of(context).text("key_create_new_cookbook_label"),
           labelStyle: TextStyle(
               color: Colors.white,
               fontFamily: 'Muli',
@@ -390,7 +391,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               child: Container(
                 child: IconButton(
                     icon: Icon(Icons.close, color: Colors.white,),
-                    tooltip: "Close",
+                    tooltip: AppTranslations.of(context).text("key_create_new_cookbook_close"),
                     onPressed: null
                 ),
               ),
@@ -404,7 +405,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               child: Container(
                 child: IconButton(
                     icon: Icon(Icons.save,  color: Colors.white,),
-                    tooltip: "Save",
+                    tooltip: AppTranslations.of(context).text("key_create_new_cookbook_save"),
                     onPressed: () {
                       _saveCookbook();
                       widget._homeState.displayRecord();

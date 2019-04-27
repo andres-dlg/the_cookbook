@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
@@ -164,18 +165,28 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
     });
   }
 
-  static const menuItems = <String>[
-    'Easy',
-    'Medium',
-    'Hard',
-  ];
+  List<String> menuItems;
+  List<DropdownMenuItem<String>> _dropDownMenuItems;
 
-  final List<DropdownMenuItem<String>> _dropDownMenuItems = menuItems
-      .map( (String value) => DropdownMenuItem<String>(
-        value: value,
-        child: Text(value),
-      )
+  void initMenuItems(){
+    menuItems = <String>[
+      AppTranslations.of(context).text("key_recipe_level_easy"),
+      AppTranslations.of(context).text("key_recipe_level_medium"),
+      AppTranslations.of(context).text("key_recipe_level_hard"),
+    ];
+
+    _dropDownMenuItems = menuItems
+        .map( (String value) => DropdownMenuItem<String>(
+      value: value,
+      child: Text(value),
+    )
     ).toList();
+
+    if(AppTranslations.of(context).currentLanguage=="es" && widget.recipe.level.isNotEmpty){
+      _selectedDiffulty = _levelInSpanish(widget.recipe.level);
+    }
+  }
+
 
   @override
   void dispose() {
@@ -190,6 +201,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
 
   @override
   Widget build(BuildContext context) {
+    initMenuItems();
     return NestedScrollView(
         //controller: _scrollController,
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -237,7 +249,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
           icon: Icon(Icons.camera_alt),
           color: Colors.white,
           iconSize: 64.0,
-          tooltip: "Pick cover Image",
+          tooltip: AppTranslations.of(context).text("key_tooltip_pick_image"),
           onPressed: () {
             imagePickerAndCropper = new ImagePickerAndCropper();
             imagePickerAndCropper.showDialog(context, callback);
@@ -298,7 +310,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                   children: <Widget>[
                     Center(
                       child: Text(
-                          "How hard is it?",
+                          AppTranslations.of(context).text("key_recipe_how_hard"),
                           style: TextStyle(
                               fontSize: 20.0,
                               fontFamily: 'Muli'
@@ -339,7 +351,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
             fontWeight: FontWeight.bold
         ),
         decoration: InputDecoration(
-          labelText: 'Recipe name *',
+          labelText: AppTranslations.of(context).text("key_recipe_name_hint"),
           labelStyle: TextStyle(
               fontFamily: 'Muli',
               fontSize: 20.0,
@@ -376,7 +388,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                 ),
               ),
               Text(
-                "Difficulty:",
+                "${AppTranslations.of(context).text("key_recipe_level")}:",
                 style: TextStyle(
                   fontFamily: 'Muli',
                   fontSize: 16.0,
@@ -393,12 +405,16 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                 color: Colors.black
             ),
             value: _selectedDiffulty != "null" ? _selectedDiffulty : null,
-            hint: Text("Choose"),
+            hint: Text(AppTranslations.of(context).text("key_recipe_level_hint")),
             onChanged: (newSelectedDifficulty) {
               setState(() {
-                PageStorage.of(context).writeState(context, newSelectedDifficulty, identifier: "selectedDifficulty");
+                String newLevel = newSelectedDifficulty;
+                if(AppTranslations.of(context).currentLanguage=="es"){
+                  newLevel = _levelInEnglish(newSelectedDifficulty);
+                }
+                PageStorage.of(context).writeState(context, newLevel, identifier: "selectedDifficulty");
                 this._selectedDiffulty = newSelectedDifficulty;
-                widget.recipe.level = newSelectedDifficulty;
+                widget.recipe.level = newLevel;
               });
             },
             items: this._dropDownMenuItems,
@@ -427,7 +443,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                 ),
               ),
               Text(
-                "Minutes:",
+                "${AppTranslations.of(context).text("key_recipe_minutes_large")}:",
                 style: TextStyle(
                   fontFamily: 'Muli',
                   fontSize: 16.0,
@@ -438,7 +454,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
             ],
           ),
           Container(
-            width: 82.0,
+            width: 70.0,
             child: TextField(
               controller: _textMinutesController,
               maxLength: 3,
@@ -481,7 +497,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
             children: <Widget>[
               Center(
                 child: Text(
-                    "Summary",
+                    AppTranslations.of(context).text("key_recipe_summary"),
                     style: TextStyle(
                         fontSize: 20.0,
                         fontFamily: 'Muli'
@@ -521,7 +537,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                 children: <Widget>[
                   Center(
                     child: Text(
-                      "Ingredients",
+                        AppTranslations.of(context).text("key_recipe_ingredients"),
                       style: TextStyle(
                           fontSize: 20.0,
                           fontFamily: 'Muli'
@@ -579,7 +595,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
       autofocus: controller.text.isEmpty? false : false,
       decoration: InputDecoration(
         counterText: "",
-        hintText: "Type here",
+        hintText: AppTranslations.of(context).text("key_step_description_hint"),
         suffixIcon: IconButton(icon: Icon(Icons.delete), onPressed: (){
           deleteTextField(ValueKey(keytext));
         })
@@ -636,6 +652,26 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
       return AssetImage("assets/images/level_hard.png");
     }else{
       return AssetImage("assets/images/level_none.png");
+    }
+  }
+
+  _levelInEnglish(String level) {
+    if(level.toLowerCase()=="fácil"){
+      return "Easy";
+    }else if(level.toLowerCase()=="medio"){
+      return "Medium";
+    }else if(level.toLowerCase()=="difícil"){
+      return "Hard";
+    }
+  }
+
+  _levelInSpanish(String level) {
+    if(level.toLowerCase()=="easy"){
+      return "Fácil";
+    }else if(level.toLowerCase()=="medium"){
+      return "Medio";
+    }else if(level.toLowerCase()=="hard"){
+      return "Difícil";
     }
   }
 
