@@ -14,7 +14,7 @@
   "key_menu": "Menú",
   "key_dialog_delete_cookbook_title": "Borrar libro",
   "key_dialog_delete_recipe_title": "Borrar receta",
-  "key_dialog_delete_cookbook_text": "¿Está seguro/a de que desea borrar este libro?",
+  "key_dialog_delete_cookbook_text": "Se borrarán todas las recetas asociadas a este libro. ¿Desea continuar?",
   "key_dialog_delete_recipe_text": "¿Está seguro/a de que desea borrar esta receta?",
   "key_dialog_delete_accept": "Si",
   "key_dialog_delete_cancel": "No",
@@ -45,5 +45,8 @@
   "key_recipe_level_hint":"Elije",
   "key_recipe_level_easy":"Fácil",
   "key_recipe_level_medium":"Medio",
-  "key_recipe_level_hard":"Difícil"
+  "key_recipe_level_hard":"Difícil",
+  "key_choose_source_dialog": "Elegir fuente",
+  "key_choose_source_camera_dialog": "Cámara",
+  "key_choose_source_gallery_dialog": "Galería"
 }

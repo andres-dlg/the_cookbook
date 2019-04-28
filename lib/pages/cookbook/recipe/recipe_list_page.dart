@@ -49,7 +49,7 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
                 padding: EdgeInsets.only(top: MediaQuery.of(context).size.height/3),
                 child: Center(
                   child: Text(
-                    AppTranslations.of(context).text("key_favourites_recipes_text"),
+                    AppTranslations.of(context).text("key_create_new_recipe_text"),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: 'Muli',

@@ -65,7 +65,6 @@ class _FavouritesListState extends State<FavouritesList> implements RecipeContra
             style: TextStyle(
             fontFamily: 'Muli',
             fontSize: 20,
-            color: Colors.black45
         ),
         )
         ) :

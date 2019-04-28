@@ -19,25 +19,15 @@ class CookbookList extends StatefulWidget {
 
   @override
   _CookbookListState createState() => _CookbookListState();
+
 }
-
-
 
 class _CookbookListState extends State<CookbookList> {
 
-  List<CustomPopupMenu> choices;
-
-  void initializeChoices(){
-    choices = <CustomPopupMenu>[
-      CustomPopupMenu(title: AppTranslations.of(context).text("key_edit"), icon: Icon(Icons.edit)),
-      CustomPopupMenu(title: AppTranslations.of(context).text("key_delete"), icon: Icon(Icons.delete)),
-    ];
-  }
-
-  void _select(CustomPopupMenu choice, Cookbook cookbook) {
-    if(choice == choices[0]){
+  void _select(String choice, Cookbook cookbook) {
+    if(choice == 'Edit'){
       _showEditDialog(cookbook);
-    }else if(choice == choices[1]){
+    }else if(choice == 'Delete'){
       _showDeleteDialog(context, cookbook);
     }
   }
@@ -53,7 +43,6 @@ class _CookbookListState extends State<CookbookList> {
 
   @override
   Widget build(BuildContext context) {
-    initializeChoices();
     return Scaffold(
       body: _gridViewItemBuilder(context),
     );
@@ -83,7 +72,7 @@ class _CookbookListState extends State<CookbookList> {
           children: [
             IconButton(
               icon: new Image.asset('assets/images/recipes-book.png',color: Colors.black26,),
-              iconSize: 112,
+              iconSize: 112, onPressed: () {},
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48.0),
@@ -93,7 +82,6 @@ class _CookbookListState extends State<CookbookList> {
                 style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Muli',
-                  color: Colors.black45,
                 ),
               ),
             ),
@@ -137,24 +125,31 @@ class _CookbookListState extends State<CookbookList> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                  PopupMenuButton<CustomPopupMenu>(
-                  icon: Icon(
-                      Icons.more_vert,color: Colors.white,),
-                  elevation: 1,
-                    initialValue: choices[0],
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert,color: Colors.white,),
+                    elevation: 1,
                     onCanceled: () {
                       print('You have not chossed anything');
                     },
                     tooltip: AppTranslations.of(context).text("key_menu"),
                     onSelected: (value) => _select(value,cookbook),
-                    itemBuilder: (BuildContext context) {
-                      return choices.map((CustomPopupMenu choice) {
-                        return PopupMenuItem<CustomPopupMenu>(
-                          value: choice,
-                          child: Text(choice.title),
-                        );
-                      }).toList();
-                    },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      PopupMenuItem<String>(
+                        value: 'Edit',
+                        child: ListTile(
+                          leading: Icon(Icons.edit),
+                          title: Text(AppTranslations.of(context).text("key_edit"), style: TextStyle(fontFamily: 'Muli')),
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem<String>(
+                        value: 'Delete',
+                        child: ListTile(
+                          leading: Icon(Icons.delete),
+                          title: Text(AppTranslations.of(context).text("key_delete"), style: TextStyle(fontFamily: 'Muli')),
+                        ),
+                      )
+                    ]
                   ),
               ]
             )
@@ -181,13 +176,6 @@ class _CookbookListState extends State<CookbookList> {
       );
     }
     return thumb;
-    /*return SizedBox.expand(
-      child: FadeInImage.assetNetwork(
-          placeholder: 'assets/gifs/spinner.gif',
-          image: Image.memory(_bytesImage),
-          fit: BoxFit.cover
-      ),
-    );*/
   }
 
   Widget _itemTitle(Cookbook cookbook) {
@@ -257,12 +245,6 @@ class _CookbookListState extends State<CookbookList> {
       },
     );
   }
-}
-
-class CustomPopupMenu {
-  CustomPopupMenu({this.title, this.icon});
-  final String title;
-  final Widget icon;
 }
 
 // ignore: must_be_immutable
