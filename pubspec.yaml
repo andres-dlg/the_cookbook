@@ -78,6 +78,10 @@ flutter:
     fonts:
     - asset: assets/fonts/Muli-Light.ttf
       weight: 300
+  - family: Cookie
+    fonts:
+    - asset: assets/fonts/Cookie-Regular.ttf
+
   # fonts:
   #   - family: Schyler
   #     fonts:

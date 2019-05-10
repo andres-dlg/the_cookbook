@@ -7,6 +7,7 @@ import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_list_page.dart';
 import 'package:the_cookbook/pages/home/favourites_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
+import 'package:the_cookbook/pages/home/settings_page.dart';
 import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
 
 class Home extends StatefulWidget {
@@ -53,7 +54,7 @@ class _HomeState extends State<Home> implements CookbookContract {
   }
 
   Widget _renderAppBar(){
-    final String title = "THE COOKBOOK";
+    final String title = "The Cookbook";
     final double barHeight = 60.0;
     final double statusbarHeight = MediaQuery
         .of(context)
@@ -63,16 +64,36 @@ class _HomeState extends State<Home> implements CookbookContract {
       child: Container(
         padding: new EdgeInsets.only(top: statusbarHeight),
         height: statusbarHeight + barHeight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: <Widget>[
-            new Center(
-              child: new Text(
-                title,
-                style: new TextStyle(fontSize: 24.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new Center(
+                  child: new Text(
+                    title,
+                    style: new TextStyle(fontSize: 40.0, color: Colors.white, fontFamily: 'Cookie'),
+                  ),
+                ),
+              ],
             ),
-          ],
+            Material(
+              type: MaterialType.transparency,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  new Center(
+                    child: IconButton(
+                      icon: Icon(Icons.settings),
+                      color: Colors.white, onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ]
         ),
         decoration: new BoxDecoration(
           borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
@@ -96,7 +117,6 @@ class _HomeState extends State<Home> implements CookbookContract {
         150.0
       ),
     );
-
   }
 
   Widget _renderBottomAppBar(int _currentIndex) {

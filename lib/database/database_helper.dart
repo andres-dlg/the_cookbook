@@ -13,6 +13,7 @@ class DatabaseHelper  {
   static final DatabaseHelper _instance = new DatabaseHelper.internal();
   factory DatabaseHelper() => _instance;
   static Database _db;
+  String path;
 
   Future<Database> get db async {
     if (_db != null) return _db;
@@ -24,7 +25,7 @@ class DatabaseHelper  {
 
   initDb() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "TheCookbook.db");
+    path = join(documentsDirectory.path, "TheCookbook.db");
     var theCookbookDb = await openDatabase(path, version: 2, onCreate: _onCreate);
     return theCookbookDb;
   }
@@ -296,6 +297,12 @@ class DatabaseHelper  {
     var theCookbookDb = await db;
     int res = await theCookbookDb.rawUpdate('DELETE FROM Steps WHERE recipeId = ?', [recipeId]);
     return res;
+  }
+
+  backUpDb(){
+
+
+
   }
 
 }
