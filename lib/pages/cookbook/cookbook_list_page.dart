@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/database/database_helper.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/cookbook.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_list_page.dart';
 import 'package:the_cookbook/pages/cookbook/cookbook_presenter.dart';
@@ -18,23 +19,22 @@ class CookbookList extends StatefulWidget {
 
   @override
   _CookbookListState createState() => _CookbookListState();
-}
 
-List<CustomPopupMenu> choices = <CustomPopupMenu>[
-  CustomPopupMenu(title: 'Edit', icon: Icons.edit),
-  CustomPopupMenu(title: 'Delete', icon: Icons.delete),
-];
+}
 
 class _CookbookListState extends State<CookbookList> {
 
-  void _select(CustomPopupMenu choice, Cookbook cookbook) {
-
-    if(choice == choices[0]){
+  void _select(String choice, Cookbook cookbook) {
+    if(choice == 'Edit'){
       _showEditDialog(cookbook);
-    }else if(choice == choices[1]){
+    }else if(choice == 'Delete'){
       _showDeleteDialog(context, cookbook);
     }
+  }
 
+  @override
+  void initState(){
+    super.initState();
   }
 
   displayRecord() {
@@ -72,17 +72,16 @@ class _CookbookListState extends State<CookbookList> {
           children: [
             IconButton(
               icon: new Image.asset('assets/images/recipes-book.png',color: Colors.black26,),
-              iconSize: 128,
+              iconSize: 112, onPressed: () {},
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48.0),
               child: Text(
-                "Create a new one pressing the blue button",
+                AppTranslations.of(context).text("key_create_new_cookbook_text"),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Muli',
-                  color: Colors.black45,
                 ),
               ),
             ),
@@ -126,24 +125,31 @@ class _CookbookListState extends State<CookbookList> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                  PopupMenuButton<CustomPopupMenu>(
-                  icon: Icon(
-                      Icons.more_vert,color: Colors.white,),
-                  elevation: 1,
-                    initialValue: choices[0],
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert,color: Colors.white,),
+                    elevation: 1,
                     onCanceled: () {
                       print('You have not chossed anything');
                     },
-                    tooltip: 'Menu',
+                    tooltip: AppTranslations.of(context).text("key_menu"),
                     onSelected: (value) => _select(value,cookbook),
-                    itemBuilder: (BuildContext context) {
-                      return choices.map((CustomPopupMenu choice) {
-                        return PopupMenuItem<CustomPopupMenu>(
-                          value: choice,
-                          child: Text(choice.title),
-                        );
-                      }).toList();
-                    },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      PopupMenuItem<String>(
+                        value: 'Edit',
+                        child: ListTile(
+                          leading: Icon(Icons.edit),
+                          title: Text(AppTranslations.of(context).text("key_edit"), style: TextStyle(fontFamily: 'Muli')),
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem<String>(
+                        value: 'Delete',
+                        child: ListTile(
+                          leading: Icon(Icons.delete),
+                          title: Text(AppTranslations.of(context).text("key_delete"), style: TextStyle(fontFamily: 'Muli')),
+                        ),
+                      )
+                    ]
                   ),
               ]
             )
@@ -170,13 +176,6 @@ class _CookbookListState extends State<CookbookList> {
       );
     }
     return thumb;
-    /*return SizedBox.expand(
-      child: FadeInImage.assetNetwork(
-          placeholder: 'assets/gifs/spinner.gif',
-          image: Image.memory(_bytesImage),
-          fit: BoxFit.cover
-      ),
-    );*/
   }
 
   Widget _itemTitle(Cookbook cookbook) {
@@ -225,18 +224,18 @@ class _CookbookListState extends State<CookbookList> {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Delete confirmation"),
-          content: new Text("Are sure do you want to delete this cookbook?"),
+          title: new Text(AppTranslations.of(context).text("key_dialog_delete_cookbook_title")),
+          content: new Text(AppTranslations.of(context).text("key_dialog_delete_cookbook_text")),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Yes"),
+              child: new Text(AppTranslations.of(context).text("key_dialog_delete_accept")),
               onPressed: () {
                 _deleteCookbook(context, cookbook);
                 Navigator.of(context).pop();
               },
             ),
             new FlatButton(
-              child: new Text("No"),
+              child: new Text(AppTranslations.of(context).text("key_dialog_delete_cancel")),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -246,12 +245,6 @@ class _CookbookListState extends State<CookbookList> {
       },
     );
   }
-}
-
-class CustomPopupMenu {
-  CustomPopupMenu({this.title, this.icon});
-  String title;
-  IconData icon;
 }
 
 // ignore: must_be_immutable
@@ -359,7 +352,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               icon: Icon(Icons.camera_alt),
               color: Colors.white,
               iconSize: 64.0,
-              tooltip: "Pick Image",
+              tooltip: AppTranslations.of(context).text("key_tooltip_pick_image"),
               onPressed: () {
                 imagePickerAndCropper = new ImagePickerAndCropper();
                 imagePickerAndCropper.showDialog(context, callback);
@@ -405,7 +398,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
     return Center(
       heightFactor: 2,
       child: Text(
-        "Update cookbook",
+        AppTranslations.of(context).text("key_tooltip_update_cookbook_button"),
         style: TextStyle(
             color: Colors.white,
             fontFamily: 'Muli',
@@ -432,7 +425,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
             fontWeight: FontWeight.bold
         ),
         decoration: InputDecoration(
-          labelText: 'Cookbook name',
+          labelText:  AppTranslations.of(context).text("key_create_new_cookbook_label"),
           labelStyle: TextStyle(
               color: Colors.white,
               fontFamily: 'Muli',
@@ -458,7 +451,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               child: Container(
                 child: IconButton(
                     icon: Icon(Icons.close, color: Colors.white,),
-                    tooltip: "Close",
+                    tooltip: AppTranslations.of(context).text("key_create_new_cookbook_close"),
                     onPressed: null
                 ),
               ),
@@ -472,7 +465,7 @@ class _MyDialogContentState extends State<MyDialogContent> {
               child: Container(
                 child: IconButton(
                     icon: Icon(Icons.save,  color: Colors.white,),
-                    tooltip: "Save",
+                    tooltip: AppTranslations.of(context).text("key_create_new_cookbook_save"),
                     onPressed: () {
                       _updateCookbook();
                       widget._coookbookListState.displayRecord();

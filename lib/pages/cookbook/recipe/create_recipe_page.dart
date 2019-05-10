@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:the_cookbook/database/database_helper.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
@@ -114,11 +115,11 @@ class _CreateRecipeState extends State<CreateRecipe>{
             items: [
               BottomNavigationBarItem(
                 icon: new Icon(Icons.restaurant),
-                title: new Text('Cover'),
+                title: new Text(AppTranslations.of(context).text("key_recipe_cover_tab_text")),
               ),
               BottomNavigationBarItem(
                 icon: new Icon(Icons.format_list_numbered),
-                title: new Text('Steps'),
+                title: new Text(AppTranslations.of(context).text("key_recipe_steps_tab_text")),
               ),
             ],
           ),
@@ -255,18 +256,18 @@ class _CreateRecipeState extends State<CreateRecipe>{
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Cancel creation"),
-          content: new Text("This recipe is not saved. Are you sure you want to go back?"),
+          title: new Text(widget.isNewRecipe ? AppTranslations.of(context).text("key_recipe_cancel_creation_dialog_title") : AppTranslations.of(context).text("key_recipe_cancel_update_dialog_title")),
+          content: new Text(widget.isNewRecipe ? AppTranslations.of(context).text("key_recipe_cancel_creation_dialog_text") : AppTranslations.of(context).text("key_recipe_cancel_update_dialog_text")),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Yes"),
+              child: new Text(AppTranslations.of(context).text("key_dialog_delete_accept")),
               onPressed: () {
                 Navigator.pop(context);
                 _closePage();
               },
             ),
             new FlatButton(
-              child: new Text("No"),
+              child: new Text(AppTranslations.of(context).text("key_dialog_delete_cancel")),
               onPressed: () {
                 Navigator.of(context).pop();
               },

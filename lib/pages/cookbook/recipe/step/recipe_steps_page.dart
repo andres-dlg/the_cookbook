@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/models/step.dart' as RecipeStep;
 import 'package:carousel_slider/carousel_slider.dart';
@@ -97,7 +98,7 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
               size: 128,
             ),
             Text(
-              "There are no steps to show :(",
+              AppTranslations.of(context).text("key_recipe_no_step"),
               style: TextStyle(
                 fontSize: 20,
                 fontFamily: 'Muli',
@@ -185,7 +186,7 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
 
   Widget _renderStepTitle(RecipeStep.Step step){
     return Text(
-      step.title,
+      "${AppTranslations.of(context).text("key_recipe_step")} ${step.title}",
       style: TextStyle(
         color: Colors.black,
         fontSize: 24.0,

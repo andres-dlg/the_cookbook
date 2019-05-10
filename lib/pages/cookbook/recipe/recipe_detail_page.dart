@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/models/Ingredient.dart';
 import 'package:the_cookbook/models/recipe.dart';
 import 'package:the_cookbook/pages/cookbook/recipe/recipe_presenter.dart';
@@ -170,7 +171,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
           ),
           widget.recipe.durationInMinutes != 987654321 ?
           Text(
-            widget.recipe.durationInMinutes.toString() + " Minutes",
+            widget.recipe.durationInMinutes.toString() + " ${AppTranslations.of(context).text("key_recipe_minutes_large")}",
             style: TextStyle(
                 fontSize: 20.0,
                 fontFamily: 'Muli'
@@ -200,7 +201,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Text(
-                  "Level: ",
+                  "${AppTranslations.of(context).text("key_recipe_level")}: ",
                   style: TextStyle(
                       fontSize: 20.0,
                       fontFamily: 'Muli'
@@ -253,7 +254,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
 
   Widget _renderFavouriteButton(){
     return IconButton(
-      tooltip: "Favourite",
+      tooltip: widget.recipe.isFavourite == 1 ? AppTranslations.of(context).text("key_recipe_remove_from_favourites_tooltip") : AppTranslations.of(context).text("key_recipe_add_to_favourites_tooltip"),
       icon: Icon(
         widget.recipe.isFavourite == 1 ? Icons.star : Icons.star_border,
         color: widget.recipe.isFavourite == 1 ? Colors.yellow : Colors.black45,
@@ -285,8 +286,8 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
                 children: <Widget>[
                   Center(
                     child: Text(
-                      "Summary",
-                      style: TextStyle(
+                        AppTranslations.of(context).text("key_recipe_summary"),
+                        style: TextStyle(
                           fontSize: 20.0,
                           fontFamily: 'Muli',
                         fontWeight: FontWeight.bold
@@ -304,7 +305,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
                     ) :
                     Center(child:
                       Text(
-                        "No summary",
+                          AppTranslations.of(context).text("key_recipe_no_summary"),
                         style: TextStyle(
                           fontSize: 18.0,
                           fontFamily: 'Muli'
@@ -340,7 +341,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
                   children: <Widget>[
                     Center(
                       child: Text(
-                          "Ingredients",
+                          AppTranslations.of(context).text("key_recipe_ingredients"),
                           style: TextStyle(
                               fontSize: 20.0,
                               fontFamily: 'Muli',
@@ -398,7 +399,7 @@ class _RecipeDetailState extends State<RecipeDetail> implements RecipeContract{
     }else{
       return Center(child:
       Text(
-          "No ingredients",
+          AppTranslations.of(context).text("key_recipe_no_ingredients"),
           style: TextStyle(
               fontSize: 18.0,
               fontFamily: 'Muli'

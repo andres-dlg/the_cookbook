@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:the_cookbook/localization/app_translations.dart';
 import 'package:the_cookbook/utils/separator.dart';
 
 class ImagePickerAndCropper{
@@ -23,7 +24,7 @@ class ImagePickerAndCropper{
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  "Choose source",
+                  AppTranslations.of(context).text("key_choose_source_dialog"),
                   style: TextStyle(
                       fontSize: 20
                   ),
@@ -47,7 +48,7 @@ class ImagePickerAndCropper{
                           },
                         ),
                         Text(
-                          "Camera",
+                          AppTranslations.of(context).text("key_choose_source_camera_dialog"),
                           style: TextStyle(
                               fontSize: 18
                           ),
@@ -69,7 +70,7 @@ class ImagePickerAndCropper{
                           },
                         ),
                         Text(
-                          "Gallery",
+                          AppTranslations.of(context).text("key_choose_source_gallery_dialog"),
                           style: TextStyle(
                               fontSize: 18
                           ),
