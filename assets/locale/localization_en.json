@@ -48,5 +48,17 @@
   "key_recipe_level_hard":"Hard",
   "key_choose_source_dialog": "Choose source",
   "key_choose_source_camera_dialog": "Camera",
-  "key_choose_source_gallery_dialog": "Gallery"
+  "key_choose_source_gallery_dialog": "Gallery",
+  "key_settings": "Settings",
+  "key_data_title": "Data",
+  "key_data_subtitle": "Export or import your cookbooks",
+  "key_data_export": "Export",
+  "key_data_import": "Import",
+  "key_region": "Region",
+  "key_region_subtitle" : "Choose your preferred language",
+  "key_region_language": "Language",
+  "key_about": "About",
+  "key_about_subtitle": "Know more about this app",
+  "key_english": "English",
+  "key_spanish": "Spanish"
 }

@@ -27,6 +27,8 @@ dependencies:
   sqflite: ^1.1.0
   path_provider: ^0.5.0+1
   flutter_slidable: ^0.4.9
+  shared_preferences: ^0.5.2
+  url_launcher: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -63,8 +65,14 @@ flutter:
     - assets/images/level_hard.png
     - assets/images/level_none.png
     - assets/images/turn.png
+    - assets/images/database.png
+    - assets/images/database_export.png
+    - assets/images/database_import.png
+    - assets/images/info.png
+    - assets/images/world.png
     - assets/locale/localization_en.json
     - assets/locale/localization_es.json
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

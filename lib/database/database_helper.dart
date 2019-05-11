@@ -299,8 +299,20 @@ class DatabaseHelper  {
     return res;
   }
 
-  backUpDb(){
+  backUpDb() async {
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    path = join(documentsDirectory.path, "TheCookbook.db");
 
+    File dbPath = File(path);
+    Directory externalStorageDirectory = await getExternalStorageDirectory();
+
+    new Directory("${externalStorageDirectory.path}/The_Cookbook_DB_Backup").create(recursive: true)
+    // The created directory is returned as a Future.
+        .then((Directory directory) {
+
+      dbPath.copy(join(directory.path,"/The_Cookbook_DB_Backup/TheCookbook.db"));
+
+    });
 
 
   }

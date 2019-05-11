@@ -72,7 +72,7 @@ class _CookbookListState extends State<CookbookList> {
           children: [
             IconButton(
               icon: new Image.asset('assets/images/recipes-book.png',color: Colors.black26,),
-              iconSize: 112, onPressed: () {},
+              iconSize: 112,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48.0),

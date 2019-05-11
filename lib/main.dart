@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_cookbook/localization/app_translations_delegate.dart';
 import 'package:the_cookbook/localization/application.dart';
 import 'package:the_cookbook/pages/home/home_page.dart';
@@ -20,6 +21,13 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     _newLocaleDelegate = AppTranslationsDelegate(newLocale: null);
     application.onLocaleChanged = onLocaleChange;
+    loadCurrentLanguage();
+  }
+
+  loadCurrentLanguage() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String currentLanguage = preferences.getString("currentLanguage");
+    onLocaleChange(new Locale(currentLanguage));
   }
 
   @override
@@ -29,7 +37,7 @@ class _MyAppState extends State<MyApp> {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Home(),
+      home: Home(callback: callback),
       localizationsDelegates: [
         _newLocaleDelegate,
         //provides localised strings
@@ -48,6 +56,10 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _newLocaleDelegate = AppTranslationsDelegate(newLocale: locale);
     });
+  }
+
+  void callback(Locale locale){
+    onLocaleChange(locale);
   }
 
 }

@@ -13,6 +13,10 @@ import 'package:the_cookbook/utils/image_picker_and_cropper.dart';
 
 class Home extends StatefulWidget {
 
+  Function callback;
+
+  Home({this.callback});
+
   @override
   State<StatefulWidget> createState() {
     return _HomeState();
@@ -85,9 +89,10 @@ class _HomeState extends State<Home> implements CookbookContract {
                 children: <Widget>[
                   new Center(
                     child: IconButton(
+                      tooltip: AppTranslations.of(context).text("key_settings"),
                       icon: Icon(Icons.settings),
                       color: Colors.white, onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage(callback: widget.callback)));
                       },
                     ),
                   ),

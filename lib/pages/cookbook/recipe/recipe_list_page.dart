@@ -122,27 +122,27 @@ class _RecipeListState extends State<RecipeList> implements RecipeContract {
               )
             ]
         ),
-        child: Row(
-          children: <Widget>[
-             Material(
-               type: MaterialType.transparency,
-               child: Container(
-                 height: 80,
-                 width: 80,
-                 child: IconButton(
-                      icon: Icon(Icons.arrow_back_ios),
-                      color: Colors.blueAccent,
-                      onPressed: () {
-                        Navigator.of(context).pop(this);
-                      }
-                  ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.arrow_back_ios),
+                  color: Colors.white,
+                  onPressed: () {
+                    Navigator.of(context).pop(this);
+                  }
+              ),
+               Padding(
+                 padding: const EdgeInsets.only(left:8.0),
+                 child: Text(
+                   title,
+                   style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
+                 ),
                ),
-             ),
-             Text(
-               title,
-               style: new TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Muli'),
-             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

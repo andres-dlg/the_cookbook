@@ -48,5 +48,17 @@
   "key_recipe_level_hard":"Difícil",
   "key_choose_source_dialog": "Elegir fuente",
   "key_choose_source_camera_dialog": "Cámara",
-  "key_choose_source_gallery_dialog": "Galería"
+  "key_choose_source_gallery_dialog": "Galería",
+  "key_settings": "Configuración",
+  "key_data_title": "Datos",
+  "key_data_subtitle": "Exporta o importa tus libros",
+  "key_data_export": "Exportar",
+  "key_data_import": "Importar",
+  "key_region": "Ubicación",
+  "key_region_subtitle" : "Elige el idioma que prefieras",
+  "key_region_language": "Idioma",
+  "key_about": "Sobre",
+  "key_about_subtitle": "Conoce más sobre la aplicación",
+  "key_english": "Inglés",
+  "key_spanish": "Español"
 }
