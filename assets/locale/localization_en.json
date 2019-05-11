@@ -29,6 +29,7 @@
   "key_recipe_no_ingredients": "This recipe has no ingredients",
   "key_recipe_step": "Step",
   "key_recipe_no_step": "There are no steps to show :(",
+  "key_recipe_step_no_description": "This step has no description",
   "key_create_recipe_tooltip_button": "Create recipe",
   "key_recipe_add_to_favourites_tooltip":"Add to favourites",
   "key_recipe_remove_from_favourites_tooltip":"Remove from favourites",
@@ -60,5 +61,13 @@
   "key_about": "About",
   "key_about_subtitle": "Know more about this app",
   "key_english": "English",
-  "key_spanish": "Spanish"
+  "key_spanish": "Spanish",
+  "key_about_1": "This application was made for testing porpuses with Flutter.\n\nIn order to explore savereal Flutter features, some dependencies were implemented:\n",
+  "key_about_2": "All the icons are from flaticon.com. Here is a list of the external image assets used and their authors: \n",
+  "key_about_3": "\nAlso some fonts were used. The credit is for them:\n",
+  "key_about_4": " - Muli. Design: Vernon Adams\n",
+  "key_about_5": " - Cookie. Design: Ania Kruk\n",
+  "key_about_6": "This application will continue improving and adding more and more features. Please feel free of contacting me if you have suggestions, ideas for the app or also if you find any bug:\n",
+  "key_about_7": "\nThank you for downloading the app!\n",
+  "key_about_8": "Here is bitten donut for you."
 }

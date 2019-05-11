@@ -233,7 +233,7 @@ class _RecipeStepsPageState extends State<RecipeStepsPage> implements StepContra
 
   Widget _renderStepDescription(RecipeStep.Step step){
     return Text(
-        step.description,
+        step.description != null && step.description.isNotEmpty ? step.description : AppTranslations.of(context).text("key_recipe_step_no_description"),
         style: TextStyle(
             fontSize: 18.0,
             fontFamily: 'Muli'

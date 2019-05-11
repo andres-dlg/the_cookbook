@@ -555,7 +555,9 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
                         mini: true,
                         child: Icon(Icons.add),
                         onPressed: () {
-                          _addTextField();
+                          setState(() {
+                            _addTextField();
+                          });
                         },
                       )
                     ],
@@ -595,7 +597,7 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
       autofocus: controller.text.isEmpty? false : false,
       decoration: InputDecoration(
         counterText: "",
-        hintText: AppTranslations.of(context).text("key_step_description_hint"),
+        //hintText: AppTranslations.of(context).text("key_step_description_hint"),
         suffixIcon: IconButton(icon: Icon(Icons.delete), onPressed: (){
           deleteTextField(ValueKey(keytext));
         })
@@ -603,10 +605,10 @@ class _CreateRecipeCoverState extends State<CreateRecipeCover> implements Recipe
     );
     TextFieldAndController textFieldAndController = new TextFieldAndController(textField,controller);
     CreateRecipeStorage.setIngredient(textFieldAndController);
-    if (!this.mounted) return;
-    setState(() {
+    //if (!this.mounted) return;
+    //setState(() {
       //_scrollController.animateTo(_scrollController.position.maxScrollExtent+48.0, duration: Duration(milliseconds: 200), curve: Curves.linearToEaseOut);
-    });
+    //});
   }
 
   List<Widget> _renderTextFields() {

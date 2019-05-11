@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget{
 
-  Function callback;
+  final Function callback;
 
   SettingsPage({this.callback});
 
@@ -296,7 +296,6 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.setString('currentLanguage', currentLanguage);
   }
 
-
   void initMenuItems(){
     String curr = AppTranslations.of(context).currentLanguage;
     if(curr.toLowerCase() == "es"){
@@ -347,19 +346,72 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     Center(child: Separator(heigth: 1.0,width: 64.0,color: Colors.blueAccent,)),
                     Text(
-                      "This application was made for testing porpuses with Flutter.\n\n"
-                      "In order to explore savereal Flutter features, some dependencies were implemented:\n\n"
-                      "- carousel_slider\n"
-                      "- image_picker\n"
-                      "- image_cropper\n"
-                      "- sqflite\n"
-                      "- path_provider\n"
-                      "- flutter_slidable\n"
-                      "- shared_preferences\n"
-                      "- url_launcher\n\n"
-                      "Also some fonts and image assets were used. The credit is for them:\n\n"
-                      "This application will continue improving and adding more and more features. "
-                      "Please feel free of contacting me if you have suggestions, ideas for the app or also if you find any bug:\n",
+                      AppTranslations.of(context).text("key_about_1"),
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontFamily: 'Muli',
+                          fontSize: 16
+                      ),
+                    ),
+                    Text(
+                          "- carousel_slider\n"
+                          "- image_picker\n"
+                          "- image_cropper\n"
+                          "- sqflite\n"
+                          "- path_provider\n"
+                          "- flutter_slidable\n"
+                          "- shared_preferences\n"
+                          "- url_launcher\n",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontFamily: 'Muli',
+                          fontSize: 16
+                      ),
+                    ),
+                    Text(
+                      AppTranslations.of(context).text("key_about_2"),
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontFamily: 'Muli',
+                          fontSize: 16
+                      ),
+                    ),
+                    _renderIconRow("clock", "Smashicons"),
+                    _renderIconRow("cookbook", "Freepik"),
+                    _renderIconRow("recipes-book", "Freepik"),
+                    _renderIconRow("donut", "Freepik"),
+                    _renderIconRow("info", "Freepik"),
+                    _renderIconRow("world", "Freepik"),
+                    _renderIconRow("ingredients", "monkik"),
+                    _renderIconRow("summary", "Kiranshastry"),
+                    _renderIconRow("turn", "Pixelmeetup"),
+                    Text(
+                      AppTranslations.of(context).text("key_about_3"),
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontFamily: 'Muli',
+                          fontSize: 16
+                      ),
+                    ),
+                    Text(
+                      AppTranslations.of(context).text("key_about_4"),
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontFamily: 'Muli',
+                          fontSize: 16
+                      ),
+                    ),
+                    Text(
+                      AppTranslations.of(context).text("key_about_5"),
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontFamily: 'Cookie',
+                          fontSize: 24
+                      ),
+                    ),
+                    Center(child: Separator(heigth: 1.0,width: 64.0,color: Colors.blueAccent,)),
+                    Text(
+                      AppTranslations.of(context).text("key_about_6"),
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           fontFamily: 'Muli',
@@ -383,7 +435,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     Center(
                       child: Text(
-                        "\nThank you for downloading the app!\n",
+                        AppTranslations.of(context).text("key_about_7"),
                         style: TextStyle(
                           fontFamily: 'Muli',
                           fontSize: 16
@@ -392,7 +444,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     Center(
                       child: Text(
-                        "Here is bitten donut for you.",
+                        AppTranslations.of(context).text("key_about_8"),
                         style: TextStyle(
                             fontFamily: 'Muli',
                             fontSize: 16
@@ -423,7 +475,29 @@ class _SettingsPageState extends State<SettingsPage> {
         );
       },
     );
+  }
 
+  Widget _renderIconRow(String iconName, String author){
+    return Row(
+      children: <Widget>[
+        Container(
+          child: Image.asset("assets/images/$iconName.png"),
+          height: 24,
+          width: 24,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "-> $author",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                fontFamily: 'Muli',
+                fontSize: 16
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   _launchURL() async {
