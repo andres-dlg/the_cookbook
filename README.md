@@ -1,8 +1,22 @@
-# the_cookbook
+# The Cookbook
 
-A new Flutter application.
+This application was made for testing porpuses with Flutter.\n\nIn order to explore savereal Flutter features, some dependencies were implemented:
 
-## Getting Started
+- carousel_slider
+- image_picker
+- image_cropper
+- sqflite
+- path_provider
+- flutter_slidable
+- shared_preferences
+- url_launcher
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+All the icons are from flaticon.com
+
+Also some fonts were used. The credit is for them:
+- Muli. Design: Vernon Adams
+- Cookie. Design: Ania Kruk
+
+This application will continue improving and adding more and more features. Please feel free of contacting me if you have suggestions, ideas for the app or also if you find any bug: andresdlg21@gmail.com
+
+
